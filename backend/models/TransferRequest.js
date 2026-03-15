@@ -7,9 +7,24 @@ const transferRequestSchema = new mongoose.Schema(
       ref: 'User',
       required: true,
     },
+    department: {
+      type: String,
+      required: [true, 'Department is required'],
+      trim: true,
+    },
+    subDepartment: {
+      type: String,
+      required: [true, 'Sub-department is required'],
+      trim: true,
+    },
     designation: {
       type: String,
       required: [true, 'Designation is required'],
+      trim: true,
+    },
+    modeOfSelection: {
+      type: String,
+      required: [true, 'Mode of selection is required'],
       trim: true,
     },
     currentZone: {

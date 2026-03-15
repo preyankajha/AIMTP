@@ -4,13 +4,19 @@ const { body } = require('express-validator');
 const {
   createTransfer,
   getMyTransfers,
+  getTransferById,
+  updateTransfer,
   searchTransfers,
+  getPublicTransfers,
   deleteTransfer,
 } = require('../controllers/transferController');
 const { protect } = require('../middleware/authMiddleware');
 
 const transferValidation = [
+  body('department').trim().notEmpty().withMessage('Department is required'),
+  body('subDepartment').trim().notEmpty().withMessage('Sub-department is required'),
   body('designation').trim().notEmpty().withMessage('Designation is required'),
+  body('modeOfSelection').trim().notEmpty().withMessage('Mode of selection is required'),
   body('currentZone').trim().notEmpty().withMessage('Current Zone is required'),
   body('currentDivision').trim().notEmpty().withMessage('Current Division is required'),
   body('currentStation').trim().notEmpty().withMessage('Current Station is required'),
@@ -28,6 +34,9 @@ const transferValidation = [
 router.post('/', protect, transferValidation, createTransfer);
 router.get('/my', protect, getMyTransfers);
 router.get('/search', protect, searchTransfers);
+router.get('/public', getPublicTransfers);
+router.get('/:id', protect, getTransferById);
+router.put('/:id', protect, transferValidation, updateTransfer);
 router.delete('/:id', protect, deleteTransfer);
 
 module.exports = router;

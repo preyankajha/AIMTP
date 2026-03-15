@@ -11,6 +11,7 @@ const { generalLimiter } = require('./middleware/rateLimiter');
 const authRoutes = require('./routes/auth');
 const transferRoutes = require('./routes/transfers');
 const matchRoutes = require('./routes/matches');
+const notificationRoutes = require('./routes/notificationRoutes');
 
 // Connect to MongoDB
 connectDB();
@@ -41,10 +42,11 @@ app.use('/api', generalLimiter);
 app.use('/api/auth', authRoutes);
 app.use('/api/transfers', transferRoutes);
 app.use('/api/matches', matchRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', message: 'Railway Mutual Transfer API is running' });
+  res.json({ status: 'OK', message: 'All India Mutual Transfer API is running' });
 });
 
 // 404 handler

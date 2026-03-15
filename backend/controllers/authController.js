@@ -33,6 +33,16 @@ const register = async (req, res, next) => {
       passwordHash: password, // Will be hashed by pre-save hook
     });
 
+    // Create welcome notification
+    const Notification = require('../models/Notification');
+    await Notification.create({
+      userId: user._id,
+      title: 'Welcome to RailTransfer!',
+      message: `Hi ${name.split(' ')[0]}, thank you for joining our platform. Start by posting your transfer request to find a match.`,
+      type: 'info',
+      link: '/transfers/create'
+    });
+
     const token = generateToken(user._id);
 
     res.status(201).json({

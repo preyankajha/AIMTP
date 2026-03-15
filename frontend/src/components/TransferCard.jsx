@@ -1,12 +1,97 @@
-import { MapPin, Building, ArrowRight, Activity, CalendarDays, Trash2 } from 'lucide-react';
+import { MapPin, Building, ArrowRight, Activity, CalendarDays, Trash2, Briefcase, Info, PencilLine, Phone, Lock } from 'lucide-react';
 import { format } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 
-const TransferCard = ({ transfer, onDelete, isOwnRequest = false }) => {
+const TransferCard = ({ transfer, onDelete, isOwnRequest = false, isPublic = false }) => {
+  const navigate = useNavigate();
   const isMatched = transfer.status === 'matched';
-  const statusColor = isMatched ? 'bg-green-100 text-green-800 border-green-200' : 'bg-blue-100 text-blue-800 border-blue-200';
+  const statusColor = isMatched ? 'bg-green-100 text-green-800 border-green-200' : 'bg-emerald-100 text-emerald-800 border-emerald-200';
   
+  // Public-specific layout
+  if (isPublic) {
+    return (
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-full hover:shadow-lg transition-all duration-300 group">
+        <div className="p-5 flex-1">
+          {/* Header: Name and Status */}
+          <div className="flex justify-between items-start mb-4">
+            <div>
+              <h3 className="text-xl font-bold text-slate-900 leading-tight">
+                {transfer.userId?.name?.split(' ')[0]} {transfer.userId?.name?.split(' ')[1]?.charAt(0)}.
+              </h3>
+              <div className="flex items-center gap-1.5 mt-1 text-slate-500">
+                <Briefcase className="h-3.5 w-3.5" />
+                <span className="text-xs font-semibold uppercase">{transfer.designation}</span>
+              </div>
+            </div>
+            <span className="px-3 py-1 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-sm">
+              Active
+            </span>
+          </div>
+
+          {/* Route: FROM -> TO */}
+          <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 relative mb-4">
+            <div className="grid grid-cols-[1fr,auto,1fr] items-center gap-3">
+              {/* From */}
+              <div className="space-y-1">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">From</span>
+                <div className="flex items-start gap-2">
+                  <MapPin className="h-4 w-4 text-red-500 mt-0.5 shrink-0" />
+                  <div>
+                    <p className="font-bold text-slate-800 text-sm leading-tight line-clamp-1">{transfer.currentStation}</p>
+                    <p className="text-[10px] text-slate-500 font-medium truncate">{transfer.currentZone}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Arrow */}
+              <div className="relative">
+                <div className="bg-white p-1.5 rounded-full shadow-sm border border-slate-100">
+                  <ArrowRight className="h-4 w-4 text-primary-500" />
+                </div>
+              </div>
+
+              {/* To */}
+              <div className="space-y-1 text-right">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">To</span>
+                <div className="flex items-start justify-end gap-2">
+                  <div>
+                    <p className="font-bold text-slate-800 text-sm leading-tight line-clamp-1">{transfer.desiredStation}</p>
+                    <p className="text-[10px] text-slate-500 font-medium truncate">{transfer.desiredZone}</p>
+                  </div>
+                  <MapPin className="h-4 w-4 text-emerald-500 mt-0.5 shrink-0" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Blurred Contact */}
+          <div className="flex items-center gap-3 py-2 px-1">
+            <div className="h-9 w-9 bg-slate-100 rounded-full flex items-center justify-center shrink-0">
+              <Phone className="h-4 w-4 text-slate-400" />
+            </div>
+            <div className="flex-1">
+              <div className="h-2 w-24 bg-slate-200 rounded-full blur-[3px] opacity-40 mb-1"></div>
+              <div className="h-2 w-16 bg-slate-200 rounded-full blur-[3px] opacity-30"></div>
+            </div>
+          </div>
+        </div>
+
+        {/* Action Button */}
+        <div className="p-5 pt-0 mt-auto">
+          <button 
+            onClick={() => navigate('/login')}
+            className="w-full flex items-center justify-center gap-2 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 font-bold text-sm shadow-sm transition-all hover:bg-slate-50 active:scale-[0.98]"
+          >
+            <Lock className="h-4 w-4 opacity-70" />
+            Login to Contact
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-shadow duration-300">
+    <div className={`relative bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden transition-shadow duration-300 hover:shadow-md`}>
       {/* Header section */}
       <div className="px-6 py-4 border-b border-slate-100 bg-slate-50 flex justify-between items-start">
         <div className="flex flex-col gap-1">
@@ -23,19 +108,35 @@ const TransferCard = ({ transfer, onDelete, isOwnRequest = false }) => {
           {!isOwnRequest && transfer.userId && (
             <div className="mt-2 text-sm font-medium text-slate-900 flex flex-col">
               <span className="text-base">{transfer.userId.name}</span>
-              <span className="text-xs text-slate-500 font-normal">{transfer.designation}</span>
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-0.5">
+                <span className="text-xs text-primary-600 font-bold px-1.5 py-0.5 bg-primary-50 rounded">
+                  {transfer.department}
+                </span>
+                <span className="text-xs text-slate-500 font-normal">
+                  {transfer.designation}
+                </span>
+              </div>
             </div>
           )}
         </div>
         
         {isOwnRequest && !isMatched && (
-          <button 
-            onClick={() => onDelete(transfer._id)}
-            className="text-slate-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-full transition-colors"
-            title="Cancel Request"
-          >
-            <Trash2 className="h-4 w-4" />
-          </button>
+          <div className="flex items-center gap-1">
+            <button 
+              onClick={() => navigate(`/transfers/edit/${transfer._id}`)}
+              className="text-slate-400 hover:text-primary-600 hover:bg-primary-50 p-2 rounded-full transition-colors"
+              title="Edit Request"
+            >
+              <PencilLine className="h-4 w-4" />
+            </button>
+            <button 
+              onClick={() => onDelete(transfer._id)}
+              className="text-slate-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-full transition-colors"
+              title="Cancel Request"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </div>
         )}
       </div>
 
@@ -49,11 +150,20 @@ const TransferCard = ({ transfer, onDelete, isOwnRequest = false }) => {
             <div className="flex items-start gap-3">
               <MapPin className="h-5 w-5 text-red-500 mt-0.5 shrink-0" />
               <div>
-                <p className="font-semibold text-slate-900 text-lg">{transfer.currentStation}</p>
+                <p className="font-semibold text-slate-900 text-lg">
+                  {transfer.currentStation}
+                </p>
                 <div className="flex flex-col text-xs text-slate-500 mt-1 gap-0.5">
-                  {isOwnRequest && <span className="text-primary-600 font-bold mb-1">{transfer.designation}</span>}
-                  <span className="flex items-center gap-1"><Building className="h-3 w-3" /> {transfer.currentDivision} Div</span>
-                  <span>{transfer.currentZone} Zone</span>
+                  {isOwnRequest && (
+                    <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                      <span className="text-primary-600 font-bold px-2 py-0.5 bg-primary-50 rounded border border-primary-100">{transfer.department}</span>
+                      <span className="text-slate-700 font-semibold">{transfer.designation}</span>
+                    </div>
+                  )}
+                  <span className="flex items-center gap-1">
+                    <Building className="h-3 w-3" /> {transfer.currentDivision + ' Div'}
+                  </span>
+                  <span>{transfer.currentZone + ' Zone'}</span>
                 </div>
               </div>
             </div>
@@ -75,16 +185,39 @@ const TransferCard = ({ transfer, onDelete, isOwnRequest = false }) => {
             <div className="flex items-start gap-3">
               <MapPin className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
               <div>
-                <p className="font-semibold text-slate-900 text-lg">{transfer.desiredStation}</p>
+                <p className="font-semibold text-slate-900 text-lg">
+                  {transfer.desiredStation}
+                </p>
                 <div className="flex flex-col text-xs text-slate-500 mt-1 gap-0.5">
-                  <span className="flex items-center gap-1"><Building className="h-3 w-3" /> {transfer.desiredDivision} Div</span>
-                  <span>{transfer.desiredZone} Zone</span>
+                  <span className="flex items-center gap-1">
+                    <Building className="h-3 w-3" /> {transfer.desiredDivision + ' Div'}
+                  </span>
+                  <span>{transfer.desiredZone + ' Zone'}</span>
                 </div>
               </div>
             </div>
           </div>
 
         </div>
+        
+        {/* Additional Details Footer */}
+        {(transfer.modeOfSelection || transfer.subDepartment) && (
+          <div className="mt-6 pt-4 border-t border-slate-100 flex flex-wrap gap-4">
+            {transfer.subDepartment && (
+              <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                <Briefcase className="h-3.5 w-3.5 text-slate-400" />
+                <span className="font-medium text-slate-700">{transfer.subDepartment}</span>
+              </div>
+            )}
+            {transfer.modeOfSelection && (
+              <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                <Info className="h-3.5 w-3.5 text-slate-400" />
+                <span>Selected via: </span>
+                <span className="font-bold text-slate-700">{transfer.modeOfSelection}</span>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

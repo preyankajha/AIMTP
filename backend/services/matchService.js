@@ -46,6 +46,27 @@ const findAndCreateMatches = async (newRequest) => {
       await TransferRequest.findByIdAndUpdate(newRequest._id, { status: 'matched' });
       await TransferRequest.findByIdAndUpdate(reverseRequest._id, { status: 'matched' });
 
+      // Create notifications for both users
+      const Notification = require('../models/Notification');
+      
+      // Notification for User A (requester)
+      await Notification.create({
+        userId: newRequest.userId,
+        title: 'Perfect Match Found! 🎊',
+        message: `We found a mutual transfer match with ${reverseRequest.userId.name} for your request to ${newRequest.desiredStation}.`,
+        type: 'match',
+        link: '/matches/my'
+      });
+
+      // Notification for User B (partner)
+      await Notification.create({
+        userId: reverseRequest.userId,
+        title: 'New Transfer Match! ✨',
+        message: `A potential partner (${newRequest.userId.name}) has been found for your transfer request to ${reverseRequest.desiredStation}.`,
+        type: 'match',
+        link: '/matches/my'
+      });
+
       createdMatches.push(match);
     }
   } catch (error) {

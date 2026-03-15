@@ -12,11 +12,37 @@ const createTransfer = async (req, res, next) => {
       return res.status(400).json({ message: errors.array()[0].msg });
     }
 
-    const { designation, currentZone, currentDivision, currentStation, desiredZone, desiredDivision, desiredStation } = req.body;
+    const { 
+      department,
+      subDepartment,
+      designation, 
+      modeOfSelection,
+      currentZone, 
+      currentDivision, 
+      currentStation, 
+      desiredZone, 
+      desiredDivision, 
+      desiredStation 
+    } = req.body;
 
-    // Check if user already has an active transfer request for same route
+    // Limit check
+    const maxRequests = parseInt(process.env.MAX_TRANSFER_REQUESTS) || 3;
+    const activeRequestsCount = await TransferRequest.countDocuments({
+      userId: req.user._id,
+      status: 'active'
+    });
+
+    if (activeRequestsCount >= maxRequests) {
+      return res.status(400).json({ 
+        message: `You have reached the maximum limit of ${maxRequests} active transfer requests. Please delete an existing request to create a new one.` 
+      });
+    }
+
+    // Check if user already has an active transfer request for exact same details
     const existingRequest = await TransferRequest.findOne({
       userId: req.user._id,
+      department,
+      subDepartment,
       designation,
       currentStation: currentStation.toUpperCase(),
       desiredStation: desiredStation.toUpperCase(),
@@ -24,12 +50,15 @@ const createTransfer = async (req, res, next) => {
     });
 
     if (existingRequest) {
-      return res.status(400).json({ message: 'You already have an active transfer request for this route' });
+      return res.status(400).json({ message: 'You already have an identical active transfer request' });
     }
 
     const transferRequest = await TransferRequest.create({
       userId: req.user._id,
+      department,
+      subDepartment,
       designation,
+      modeOfSelection,
       currentZone,
       currentDivision,
       currentStation: currentStation.toUpperCase(),
@@ -60,6 +89,73 @@ const getMyTransfers = async (req, res, next) => {
       .sort({ createdAt: -1 });
 
     res.json({ transfers });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Get transfer request by ID
+// @route   GET /api/transfers/:id
+// @access  Private
+const getTransferById = async (req, res, next) => {
+  try {
+    const transfer = await TransferRequest.findById(req.params.id);
+
+    if (!transfer) {
+      return res.status(404).json({ message: 'Transfer request not found' });
+    }
+
+    // Only owner can view
+    if (transfer.userId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Not authorized to view this request' });
+    }
+
+    res.json(transfer);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Update a transfer request
+// @route   PUT /api/transfers/:id
+// @access  Private
+const updateTransfer = async (req, res, next) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ message: errors.array()[0].msg });
+    }
+
+    let transfer = await TransferRequest.findById(req.params.id);
+
+    if (!transfer) {
+      return res.status(404).json({ message: 'Transfer request not found' });
+    }
+
+    // Only owner can update
+    if (transfer.userId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Not authorized to update this request' });
+    }
+
+    // Update fields
+    const updateData = { ...req.body };
+    if (updateData.currentStation) updateData.currentStation = updateData.currentStation.toUpperCase();
+    if (updateData.desiredStation) updateData.desiredStation = updateData.desiredStation.toUpperCase();
+
+    transfer = await TransferRequest.findByIdAndUpdate(
+      req.params.id,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    );
+
+    // Re-run matching engine after update
+    const matches = await findAndCreateMatches(transfer);
+
+    res.json({
+      message: 'Transfer request updated successfully',
+      transfer,
+      matchesFound: matches.length,
+    });
   } catch (error) {
     next(error);
   }
@@ -122,4 +218,38 @@ const deleteTransfer = async (req, res, next) => {
   }
 };
 
-module.exports = { createTransfer, getMyTransfers, searchTransfers, deleteTransfer };
+// @desc    Get public transfer requests for landing page
+// @route   GET /api/transfers/public
+// @access  Public
+const getPublicTransfers = async (req, res, next) => {
+  try {
+    const transfers = await TransferRequest.find({ status: 'active' })
+      .populate('userId', 'name designation')
+      .sort({ createdAt: -1 })
+      .limit(6);
+
+    // Sanitize the names (only show first name)
+    const sanitizedTransfers = transfers.map(transfer => {
+      const transferObj = transfer.toObject();
+      if (transferObj.userId && transferObj.userId.name) {
+        transferObj.userId.name = transferObj.userId.name.split(' ')[0];
+      }
+      return transferObj;
+    });
+
+    res.json({ transfers: sanitizedTransfers });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { 
+  createTransfer, 
+  getMyTransfers, 
+  getTransferById, 
+  updateTransfer, 
+  searchTransfers, 
+  getPublicTransfers, 
+  deleteTransfer 
+};
+
