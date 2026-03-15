@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { Train, ArrowRight, Eye, EyeOff } from 'lucide-react';
+import { Train, ArrowRight, Eye, EyeOff, ShieldCheck, Zap, UserCheck } from 'lucide-react';
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -30,127 +31,183 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex font-sans">
-      {/* Left Panel — Branding */}
-      <div className="hidden lg:flex lg:w-2/5 bg-primary-950 flex-col justify-between p-12 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10 pointer-events-none" style={{backgroundImage: 'radial-gradient(circle at 20% 80%, #10b981 0%, transparent 50%), radial-gradient(circle at 80% 20%, #3b82f6 0%, transparent 50%)'}} />
+    <div className="min-h-screen flex bg-white font-sans overflow-hidden">
+      {/* Left Panel — Branding (Deep Blue) */}
+      <div className="hidden lg:flex lg:w-[55%] bg-[#002B5B] flex-col justify-between p-16 relative overflow-hidden">
+        {/* Subtle decorative glow */}
+        <div className="absolute inset-0 opacity-20 pointer-events-none" 
+          style={{backgroundImage: 'radial-gradient(circle at 10% 10%, #10b981 0%, transparent 40%), radial-gradient(circle at 90% 90%, #3b82f6 0%, transparent 40%)'}} 
+        />
         
+        {/* Header Branding */}
         <div className="relative z-10 flex items-center gap-3">
-          <div className="bg-emerald-500 p-2 rounded-xl text-primary-950">
+          <div className="bg-[#05D38A] p-2.5 rounded-xl text-white shadow-lg shadow-[#05D38A]/20">
             <Train className="h-6 w-6" />
           </div>
-          <span className="text-white font-black text-lg tracking-tight">All India Mutual Transfer Portal</span>
+          <span className="text-white font-black text-xl tracking-tight">All India Mutual Transfer Portal</span>
         </div>
 
-        <div className="relative z-10">
-          <blockquote className="text-white/80 text-xl font-medium leading-relaxed mb-6">
-            "Connect with railway employees across all zones and divisions for a seamless mutual transfer experience."
-          </blockquote>
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-emerald-500 flex items-center justify-center text-primary-950 font-black text-sm">RT</div>
-            <div>
-              <p className="text-white font-bold text-sm">RailTransfer Portal</p>
-              <p className="text-white/40 text-xs font-medium">Official Platform</p>
-            </div>
-          </div>
-        </div>
+        {/* Hero Content */}
+        <div className="relative z-10 max-w-lg mb-20 animate-fade-in-up">
+          <h1 className="text-5xl font-black text-white leading-[1.15] tracking-tight mb-8">
+            Find your perfect transfer match across Indian Railways
+          </h1>
+          <p className="text-blue-100/70 text-lg font-medium leading-relaxed mb-10 max-w-md">
+            Connect with railway employees across all zones and divisions for a seamless mutual transfer experience.
+          </p>
 
-        <div className="relative z-10">
-          <div className="grid grid-cols-3 gap-4">
-            {[{ val: '500+', label: 'Transfers' }, { val: '18', label: 'Railway Zones' }, { val: '24/7', label: 'Active Matching' }].map(s => (
-              <div key={s.label} className="bg-white/5 rounded-2xl p-4 border border-white/5">
-                <p className="text-2xl font-black text-white">{s.val}</p>
-                <p className="text-white/40 text-xs font-bold uppercase tracking-wider mt-1">{s.label}</p>
+          <div className="space-y-6">
+            {[
+              { icon: UserCheck, text: "Verified railway employee profiles" },
+              { icon: Zap, text: "Smart matching algorithm" },
+              { icon: ShieldCheck, text: "Real-time notifications" }
+            ].map((feature, i) => (
+              <div key={i} className="flex items-center gap-4 group">
+                <div className="h-6 w-6 rounded-full border border-white/20 flex items-center justify-center text-white/50 group-hover:bg-[#05D38A] group-hover:border-[#05D38A] group-hover:text-[#002B5B] transition-all duration-300">
+                  <span className="text-[10px] font-black italic">O</span>
+                </div>
+                <span className="text-white/80 font-semibold">{feature.text}</span>
               </div>
             ))}
           </div>
         </div>
+
+        {/* Stats Section */}
+        <div className="relative z-10 grid grid-cols-3 gap-6 animate-fade-in-up delay-200">
+          {[
+            { val: '500+', label: 'Successful Transfers' },
+            { val: '18', label: 'Railway Zones' },
+            { val: '24/7', label: 'Active Matching' }
+          ].map((s, i) => (
+            <div key={i} className="bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all">
+              <p className="text-3xl font-black text-white flex items-center gap-2">
+                 <span className="h-2 w-2 rounded-full bg-[#05D38A]" />
+                 {s.val}
+              </p>
+              <p className="text-white/40 text-[10px] font-black uppercase tracking-widest mt-2 ml-4">{s.label}</p>
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* Right Panel — Form */}
-      <div className="flex-1 flex items-center justify-center bg-slate-50 p-8 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary-100 rounded-full blur-[120px] opacity-40 pointer-events-none translate-x-1/2 -translate-y-1/2" />
-        <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-emerald-100 rounded-full blur-[100px] opacity-30 pointer-events-none -translate-x-1/2 translate-y-1/2" />
-
-        <div className="w-full max-w-md relative z-10 animate-fade-in">
-          <div className="mb-8 lg:hidden flex items-center gap-3">
-            <div className="bg-primary-900 p-2 rounded-xl text-white">
+      {/* Right Panel — Login Form */}
+      <div className="flex-1 flex flex-col items-center justify-center p-8 bg-white lg:p-16">
+        <div className="w-full max-w-[420px] animate-fade-in">
+          {/* Mobile Header */}
+          <div className="mb-12 lg:hidden flex items-center gap-3">
+            <div className="bg-[#002B5B] p-2 rounded-xl text-white">
               <Train className="h-5 w-5" />
             </div>
-            <span className="font-black text-primary-900 text-base">All India Mutual Transfer Portal</span>
+            <span className="font-black text-[#002B5B] text-lg tracking-tight">RailTransfer</span>
           </div>
 
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight mb-1">Welcome back</h1>
-          <p className="text-slate-500 font-medium mb-8">Sign in to manage your transfer requests.</p>
+          <div className="text-center lg:text-left mb-10">
+            <h1 className="text-3xl font-black text-slate-900 tracking-tight mb-2">Welcome back</h1>
+            <p className="text-slate-500 font-medium">Sign in to manage your transfer requests and find matches.</p>
+          </div>
 
-          <div className="bg-white rounded-[1.75rem] border border-slate-200 shadow-sm p-8 space-y-6">
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm font-medium flex items-center gap-2">
-                <span className="shrink-0 text-red-500">⚠</span> {error}
-              </div>
-            )}
+          {error && (
+            <div className="bg-red-50 border border-red-100 text-red-700 rounded-2xl px-5 py-4 text-sm font-medium flex items-center gap-3 mb-8 animate-shake">
+              <span className="text-red-500 bg-white shadow-sm h-6 w-6 rounded-lg flex items-center justify-center font-bold">!</span>
+              {error}
+            </div>
+          )}
 
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div>
-                <label className="block text-xs font-black text-slate-600 uppercase tracking-widest mb-2" htmlFor="email">
-                  Email Address
-                </label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 placeholder-slate-400 transition-all"
-                  placeholder="name@railnet.gov.in"
-                  value={formData.email}
-                  onChange={handleChange}
-                />
-              </div>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-2.5" htmlFor="email">
+                Email Address
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                required
+                className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:outline-none focus:ring-4 focus:ring-[#002B5B]/10 focus:border-[#002B5B] placeholder-slate-400 transition-all"
+                placeholder="name@railnet.gov.in"
+                value={formData.email}
+                onChange={handleChange}
+              />
+            </div>
 
-              <div>
-                <label className="block text-xs font-black text-slate-600 uppercase tracking-widest mb-2" htmlFor="password">
+            <div>
+              <div className="flex justify-between items-center mb-2.5">
+                <label className="block text-sm font-bold text-slate-700" htmlFor="password">
                   Password
                 </label>
-                <div className="relative">
-                  <input
-                    id="password"
-                    name="password"
-                    type={showPassword ? 'text' : 'password'}
-                    required
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 placeholder-slate-400 transition-all pr-11"
-                    placeholder="••••••••"
-                    value={formData.password}
-                    onChange={handleChange}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-1"
-                  >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                </div>
+                <Link to="/help" className="text-sm font-black text-[#002B5B] hover:underline">
+                  Forgot password?
+                </Link>
               </div>
+              <div className="relative">
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:outline-none focus:ring-4 focus:ring-[#002B5B]/10 focus:border-[#002B5B] placeholder-slate-400 transition-all pr-14"
+                  placeholder="Enter your password"
+                  value={formData.password}
+                  onChange={handleChange}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-1"
+                >
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
+              </div>
+            </div>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full flex items-center justify-center gap-2 py-3 px-6 bg-primary-900 hover:bg-slate-900 text-white font-black rounded-xl shadow-lg shadow-primary-900/20 transition-all active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
-              >
-                {loading ? (
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                ) : (
-                  <>Sign In <ArrowRight className="h-4 w-4" /></>
-                )}
-              </button>
-            </form>
+            <div className="flex items-center gap-3">
+              <input
+                id="remember"
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="h-5 w-5 rounded-lg border-slate-300 text-[#002B5B] focus:ring-[#002B5B] transition-all cursor-pointer"
+              />
+              <label htmlFor="remember" className="text-sm font-bold text-slate-500 cursor-pointer">
+                Remember me for 30 days
+              </label>
+            </div>
 
-            <p className="text-center text-sm text-slate-500 pt-4 border-t border-slate-100 font-medium">
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-2 py-4 px-6 bg-[#002B5B] hover:bg-[#003B7B] text-white font-black rounded-2xl shadow-xl shadow-[#002B5B]/20 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed group"
+            >
+              {loading ? (
+                <div className="w-5 h-5 border-3 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <>Sign In <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" /></>
+              )}
+            </button>
+          </form>
+
+          <div className="mt-12 text-center text-sm font-bold text-slate-400 uppercase tracking-widest flex items-center gap-4">
+            <div className="h-px flex-1 bg-slate-100" />
+            NEW TO RAILTRANSFER?
+            <div className="h-px flex-1 bg-slate-100" />
+          </div>
+
+          <div className="mt-10 text-center">
+            <p className="text-slate-500 font-bold mb-6">
               Don't have an account?{' '}
-              <Link to="/register" className="font-black text-primary-700 hover:text-primary-900 hover:underline transition-all">
+              <Link to="/register" className="text-[#002B5B] font-black hover:underline underline-offset-4 decoration-2">
                 Create one now
               </Link>
             </p>
+
+            <div className="flex items-center justify-center gap-8 pt-8 border-t border-slate-50">
+              <div className="flex items-center gap-2 text-[10px] font-black text-slate-300 uppercase tracking-widest">
+                <ShieldCheck className="h-4 w-4" /> 256-bit SSL
+              </div>
+              <div className="flex items-center gap-2 text-[10px] font-black text-slate-300 uppercase tracking-widest">
+                <UserCheck className="h-4 w-4" /> Verified Platform
+              </div>
+            </div>
           </div>
         </div>
       </div>

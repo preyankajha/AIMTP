@@ -59,6 +59,15 @@ const transferRequestSchema = new mongoose.Schema(
       trim: true,
       uppercase: true,
     },
+    basicPay: {
+      type: Number,
+      required: [true, 'Basic Pay is required'],
+    },
+    category: {
+      type: String,
+      required: [true, 'Category is required'],
+      enum: ['General', 'SC', 'ST', 'OBC', 'EWS'],
+    },
     status: {
       type: String,
       enum: ['active', 'matched', 'cancelled'],

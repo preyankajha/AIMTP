@@ -7,6 +7,17 @@ const TransferCard = ({ transfer, onDelete, isOwnRequest = false, isPublic = fal
   const isMatched = transfer.status === 'matched';
   const statusColor = isMatched ? 'bg-green-100 text-green-800 border-green-200' : 'bg-emerald-100 text-emerald-800 border-emerald-200';
   
+  const getCategoryColor = (cat) => {
+    switch (cat?.toUpperCase()) {
+      case 'GENERAL': return 'bg-slate-100 text-slate-700 border-slate-200';
+      case 'SC': return 'bg-orange-100 text-orange-700 border-orange-200';
+      case 'ST': return 'bg-blue-100 text-blue-700 border-blue-200';
+      case 'OBC': return 'bg-amber-100 text-amber-700 border-amber-200';
+      case 'EWS': return 'bg-indigo-100 text-indigo-700 border-indigo-200';
+      default: return 'bg-slate-50 text-slate-500 border-slate-100';
+    }
+  };
+  
   // Public-specific layout
   if (isPublic) {
     return (
@@ -23,9 +34,16 @@ const TransferCard = ({ transfer, onDelete, isOwnRequest = false, isPublic = fal
                 <span className="text-xs font-semibold uppercase">{transfer.designation}</span>
               </div>
             </div>
-            <span className="px-3 py-1 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-sm">
-              Active
-            </span>
+            <div className="flex flex-col items-end gap-1.5">
+              <span className="px-3 py-1 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-sm">
+                Active
+              </span>
+              {transfer.category && (
+                <span className={`px-2 py-0.5 border rounded-lg text-[9px] font-black uppercase tracking-tighter ${getCategoryColor(transfer.category)}`}>
+                  {transfer.category}
+                </span>
+              )}
+            </div>
           </div>
 
           {/* Route: FROM -> TO */}
@@ -58,10 +76,24 @@ const TransferCard = ({ transfer, onDelete, isOwnRequest = false, isPublic = fal
                     <p className="font-bold text-slate-800 text-sm leading-tight line-clamp-1">{transfer.desiredStation}</p>
                     <p className="text-[10px] text-slate-500 font-medium truncate">{transfer.desiredZone}</p>
                   </div>
-                  <MapPin className="h-4 w-4 text-emerald-500 mt-0.5 shrink-0" />
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* New: Basic Pay and Dept Info for Public View */}
+          <div className="flex flex-wrap gap-3 mb-4 mt-2">
+            {transfer.department && (
+              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-primary-50 text-primary-700 rounded-lg text-[10px] font-black uppercase tracking-wider border border-primary-100/50">
+                <Briefcase className="h-3 w-3" />
+                {transfer.department}
+              </div>
+            )}
+            {transfer.basicPay && (
+              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-50 text-slate-600 rounded-lg text-[10px] font-black tracking-wider border border-slate-100">
+                <span>₹ {Number(transfer.basicPay).toLocaleString()}</span>
+              </div>
+            )}
           </div>
 
           {/* Blurred Contact */}
@@ -103,6 +135,11 @@ const TransferCard = ({ transfer, onDelete, isOwnRequest = false, isPublic = fal
               <CalendarDays className="h-3 w-3" />
               {format(new Date(transfer.createdAt), 'MMM dd, yyyy')}
             </span>
+            {transfer.category && (
+              <span className={`px-2 py-0.5 rounded-lg text-[10px] font-black uppercase border ${getCategoryColor(transfer.category)}`}>
+                {transfer.category}
+              </span>
+            )}
           </div>
           
           {!isOwnRequest && transfer.userId && (
@@ -214,6 +251,12 @@ const TransferCard = ({ transfer, onDelete, isOwnRequest = false, isPublic = fal
                 <Info className="h-3.5 w-3.5 text-slate-400" />
                 <span>Selected via: </span>
                 <span className="font-bold text-slate-700">{transfer.modeOfSelection}</span>
+              </div>
+            )}
+            {transfer.basicPay && (
+              <div className="flex items-center gap-1.5 text-xs text-slate-500 ml-auto">
+                <span className="font-black text-slate-400 uppercase tracking-widest text-[9px]">Basic Pay</span>
+                <span className="font-extrabold text-primary-700 bg-primary-50 px-2 py-0.5 rounded-lg border border-primary-100">₹ {Number(transfer.basicPay).toLocaleString()}</span>
               </div>
             )}
           </div>

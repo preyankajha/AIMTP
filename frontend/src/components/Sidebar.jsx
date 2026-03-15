@@ -9,7 +9,8 @@ import {
   HelpCircle,
   Plus,
   Train,
-  LogOut
+  LogOut,
+  ShieldCheck
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
@@ -77,6 +78,24 @@ const Sidebar = () => {
               <span className="text-sm">{item.name}</span>
             </NavLink>
           ))}
+
+          {/* Admin Toggle - Highlighted Segment */}
+          {user?.role === 'admin' && (
+            <div className="pt-4 mt-4 border-t border-white/10">
+              <NavLink
+                to="/admin"
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-3 py-3 rounded-xl transition-all border ${isActive
+                    ? 'bg-red-500/20 text-red-400 font-bold border-red-500/30'
+                    : 'bg-red-500/5 text-red-400/70 border-red-500/10 hover:bg-red-500/10 hover:text-red-400'
+                  }`
+                }
+              >
+                <ShieldCheck className="h-5 w-5 shrink-0" />
+                <span className="text-sm">Go to Admin Panel</span>
+              </NavLink>
+            </div>
+          )}
         </nav>
       </div>
 

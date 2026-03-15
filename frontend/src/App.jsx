@@ -18,6 +18,15 @@ import LandingPage from './pages/LandingPage';
 
 import { AuthProvider } from './context/AuthContext';
 
+// Admin Components
+import AdminLayout from './admin/components/AdminLayout';
+import AdminProtectedRoute from './admin/components/AdminProtectedRoute';
+import AdminDashboardPage from './admin/pages/AdminDashboardPage';
+import AdminUsersPage from './admin/pages/AdminUsersPage';
+import AdminTransfersPage from './admin/pages/AdminTransfersPage';
+import AdminMatchesPage from './admin/pages/AdminMatchesPage';
+import AdminAnalyticsPage from './admin/pages/AdminAnalyticsPage';
+
 function App() {
   return (
     <AuthProvider>
@@ -46,6 +55,21 @@ function App() {
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/help" element={<HelpPage />} />
+          </Route>
+
+          {/* Admin Routes */}
+          <Route
+            element={
+              <AdminProtectedRoute>
+                <AdminLayout />
+              </AdminProtectedRoute>
+            }
+          >
+            <Route path="/admin" element={<AdminDashboardPage />} />
+            <Route path="/admin/users" element={<AdminUsersPage />} />
+            <Route path="/admin/transfers" element={<AdminTransfersPage />} />
+            <Route path="/admin/matches" element={<AdminMatchesPage />} />
+            <Route path="/admin/analytics" element={<AdminAnalyticsPage />} />
           </Route>
 
           {/* Fallback */}

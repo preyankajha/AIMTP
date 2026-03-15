@@ -12,6 +12,7 @@ const authRoutes = require('./routes/auth');
 const transferRoutes = require('./routes/transfers');
 const matchRoutes = require('./routes/matches');
 const notificationRoutes = require('./routes/notificationRoutes');
+const adminRoutes = require('./routes/admin');
 
 // Connect to MongoDB
 connectDB();
@@ -43,6 +44,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/transfers', transferRoutes);
 app.use('/api/matches', matchRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

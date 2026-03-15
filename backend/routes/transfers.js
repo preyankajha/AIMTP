@@ -17,6 +17,8 @@ const transferValidation = [
   body('subDepartment').trim().notEmpty().withMessage('Sub-department is required'),
   body('designation').trim().notEmpty().withMessage('Designation is required'),
   body('modeOfSelection').trim().notEmpty().withMessage('Mode of selection is required'),
+  body('basicPay').isNumeric().withMessage('Basic pay must be a number'),
+  body('category').isIn(['General', 'SC', 'ST', 'OBC', 'EWS']).withMessage('Invalid category'),
   body('currentZone').trim().notEmpty().withMessage('Current Zone is required'),
   body('currentDivision').trim().notEmpty().withMessage('Current Division is required'),
   body('currentStation').trim().notEmpty().withMessage('Current Station is required'),

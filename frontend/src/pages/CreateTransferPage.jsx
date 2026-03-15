@@ -8,6 +8,7 @@ import { ArrowRight, MapPin, Send, Building2, Briefcase } from 'lucide-react';
 import { railwayData } from '../data/zonesData';
 import { railwayDepartments } from '../data/railwayDepartments';
 import { modeOfSelection } from '../data/modeOfSelection';
+import { categories } from '../data/categories';
 
 const SelectInput = ({ label, name, value, options, placeholder, icon: Icon, onChange, otherValue, onOtherChange }) => {
   const isOtherSelected = value === 'Other' || value === 'OTHER';
@@ -73,6 +74,8 @@ const CreateTransferPage = () => {
     desiredZone: '',
     desiredDivision: '',
     desiredStation: '',
+    basicPay: '',
+    category: '',
   });
 
   // States for "Other" custom inputs
@@ -217,6 +220,8 @@ const CreateTransferPage = () => {
           }
 
           newFormData.modeOfSelection = data.modeOfSelection;
+          newFormData.basicPay = data.basicPay || '';
+          newFormData.category = data.category || '';
 
           setFormData(newFormData);
           setOtherInputs(newOtherInputs);
@@ -358,6 +363,29 @@ const CreateTransferPage = () => {
                 onChange={handleChange}
                 otherValue={otherInputs.modeOfSelection}
                 onOtherChange={handleOtherChange}
+              />
+              <div className="space-y-2">
+                <label className="block text-sm font-black text-slate-700">Basic Pay (₹)</label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">₹</span>
+                  <input
+                    type="number"
+                    name="basicPay"
+                    value={formData.basicPay}
+                    onChange={handleChange}
+                    required
+                    placeholder="e.g. 45000"
+                    className="block w-full pl-8 pr-4 py-2.5 bg-white border border-slate-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm transition-all font-medium"
+                  />
+                </div>
+              </div>
+              <SelectInput 
+                label="Category" 
+                name="category" 
+                value={formData.category} 
+                options={categories} 
+                onChange={handleChange}
+                placeholder="Select Category"
               />
             </div>
           </div>
