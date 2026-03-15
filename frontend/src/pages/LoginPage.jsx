@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { Train, ArrowRight, Eye, EyeOff, ShieldCheck, Zap, UserCheck } from 'lucide-react';
+import { Repeat, ArrowRight, Eye, EyeOff, ShieldCheck, Zap, UserCheck } from 'lucide-react';
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -21,7 +21,7 @@ const LoginPage = () => {
     setError('');
     setLoading(true);
     try {
-      await login(formData);
+      await login({ ...formData, rememberMe });
       navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to login. Please check your credentials.');
@@ -40,25 +40,25 @@ const LoginPage = () => {
         />
         
         {/* Header Branding */}
-        <div className="relative z-10 flex items-center gap-3">
-          <div className="bg-[#05D38A] p-2.5 rounded-xl text-white shadow-lg shadow-[#05D38A]/20">
-            <Train className="h-6 w-6" />
+        <Link to="/" className="relative z-10 flex items-center gap-3 group/logo">
+          <div className="bg-[#05D38A] p-2.5 rounded-xl text-white shadow-lg shadow-[#05D38A]/20 transition-transform group-hover/logo:scale-105">
+            <Repeat className="h-6 w-6" />
           </div>
           <span className="text-white font-black text-xl tracking-tight">All India Mutual Transfer Portal</span>
-        </div>
+        </Link>
 
         {/* Hero Content */}
         <div className="relative z-10 max-w-lg mb-20 animate-fade-in-up">
           <h1 className="text-5xl font-black text-white leading-[1.15] tracking-tight mb-8">
-            Find your perfect transfer match across Indian Railways
+            Find your perfect transfer match across India
           </h1>
           <p className="text-blue-100/70 text-lg font-medium leading-relaxed mb-10 max-w-md">
-            Connect with railway employees across all zones and divisions for a seamless mutual transfer experience.
+            Connect with employees across all regions and divisions for a seamless mutual transfer experience.
           </p>
 
           <div className="space-y-6">
             {[
-              { icon: UserCheck, text: "Verified railway employee profiles" },
+              { icon: UserCheck, text: "Verified employee profiles" },
               { icon: Zap, text: "Smart matching algorithm" },
               { icon: ShieldCheck, text: "Real-time notifications" }
             ].map((feature, i) => (
@@ -76,7 +76,7 @@ const LoginPage = () => {
         <div className="relative z-10 grid grid-cols-3 gap-6 animate-fade-in-up delay-200">
           {[
             { val: '500+', label: 'Successful Transfers' },
-            { val: '18', label: 'Railway Zones' },
+            { val: '18+', label: 'Regions' },
             { val: '24/7', label: 'Active Matching' }
           ].map((s, i) => (
             <div key={i} className="bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all">
@@ -94,12 +94,12 @@ const LoginPage = () => {
       <div className="flex-1 flex flex-col items-center justify-center p-8 bg-white lg:p-16">
         <div className="w-full max-w-[420px] animate-fade-in">
           {/* Mobile Header */}
-          <div className="mb-12 lg:hidden flex items-center gap-3">
-            <div className="bg-[#002B5B] p-2 rounded-xl text-white">
-              <Train className="h-5 w-5" />
+          <Link to="/" className="mb-12 lg:hidden flex items-center gap-3 group/logo">
+            <div className="bg-[#002B5B] p-2 rounded-xl text-white transition-transform group-hover/logo:scale-105">
+              <Repeat className="h-5 w-5" />
             </div>
-            <span className="font-black text-[#002B5B] text-lg tracking-tight">RailTransfer</span>
-          </div>
+            <span className="font-black text-[#002B5B] text-lg tracking-tight">All India Mutual Transfer Portal</span>
+          </Link>
 
           <div className="text-center lg:text-left mb-10">
             <h1 className="text-3xl font-black text-slate-900 tracking-tight mb-2">Welcome back</h1>
@@ -135,7 +135,7 @@ const LoginPage = () => {
                 <label className="block text-sm font-bold text-slate-700" htmlFor="password">
                   Password
                 </label>
-                <Link to="/help" className="text-sm font-black text-[#002B5B] hover:underline">
+                <Link to="/forgot-password" className="text-sm font-black text-[#002B5B] hover:underline">
                   Forgot password?
                 </Link>
               </div>
@@ -188,7 +188,7 @@ const LoginPage = () => {
 
           <div className="mt-12 text-center text-sm font-bold text-slate-400 uppercase tracking-widest flex items-center gap-4">
             <div className="h-px flex-1 bg-slate-100" />
-            NEW TO RAILTRANSFER?
+            NEW TO AIMTP?
             <div className="h-px flex-1 bg-slate-100" />
           </div>
 

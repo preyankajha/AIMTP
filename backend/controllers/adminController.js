@@ -2,6 +2,8 @@ const User = require('../models/User');
 const TransferRequest = require('../models/TransferRequest');
 const Match = require('../models/Match');
 const Notification = require('../models/Notification');
+const fs = require('fs');
+const path = require('path');
 
 // ──────────────────────────────────────────
 // OVERVIEW STATS
@@ -352,6 +354,72 @@ const getRecentActivity = async (req, res, next) => {
   }
 };
 
+// ──────────────────────────────────────────
+// SETTINGS
+// ──────────────────────────────────────────
+
+// @desc   Get system settings
+// @route  GET /api/admin/settings
+// @access Private/Admin
+const getSettings = async (req, res, next) => {
+  try {
+    res.json({
+      smtpHost: process.env.SMTP_HOST || 'smtp.gmail.com',
+      smtpPort: process.env.SMTP_PORT || '587',
+      smtpUser: process.env.SMTP_USER || '',
+      smtpPass: process.env.SMTP_PASS || '',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc   Update system settings
+// @route  PUT /api/admin/settings
+// @access Private/Admin
+const updateSettings = async (req, res, next) => {
+  try {
+    const { smtpHost, smtpPort, smtpUser, smtpPass } = req.body;
+    
+    // Update process.env in memory immediately so we don't have to bounce the server
+    if (smtpHost !== undefined) process.env.SMTP_HOST = smtpHost;
+    if (smtpPort !== undefined) process.env.SMTP_PORT = smtpPort;
+    if (smtpUser !== undefined) process.env.SMTP_USER = smtpUser;
+    if (smtpPass !== undefined) process.env.SMTP_PASS = smtpPass;
+
+    // Persist to .env safely
+    const envPath = path.join(__dirname, '../../.env');
+    let envContent = '';
+    try {
+      if (fs.existsSync(envPath)) {
+        envContent = fs.readFileSync(envPath, 'utf8');
+      }
+    } catch (e) {
+      console.warn("Could not read .env file", e);
+    }
+
+    // Helper to replace or append
+    const setEnvValue = (key, value) => {
+      const regex = new RegExp(`^${key}=.*$`, 'm');
+      if (regex.test(envContent)) {
+        envContent = envContent.replace(regex, `${key}=${value}`);
+      } else {
+        envContent += `\n${key}=${value}`;
+      }
+    };
+
+    if (smtpHost !== undefined) setEnvValue('SMTP_HOST', smtpHost);
+    if (smtpPort !== undefined) setEnvValue('SMTP_PORT', smtpPort);
+    if (smtpUser !== undefined) setEnvValue('SMTP_USER', smtpUser);
+    if (smtpPass !== undefined) setEnvValue('SMTP_PASS', smtpPass);
+
+    fs.writeFileSync(envPath, envContent.trim() + '\n');
+    res.json({ message: 'Settings updated successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getStats,
   getAnalytics,
@@ -364,4 +432,6 @@ module.exports = {
   getAllMatches,
   deleteMatch,
   getRecentActivity,
+  getSettings,
+  updateSettings,
 };

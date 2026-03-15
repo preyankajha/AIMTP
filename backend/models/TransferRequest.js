@@ -7,6 +7,11 @@ const transferRequestSchema = new mongoose.Schema(
       ref: 'User',
       required: true,
     },
+    sector: {
+      type: String,
+      default: 'Railway',
+      trim: true,
+    },
     department: {
       type: String,
       required: [true, 'Department is required'],

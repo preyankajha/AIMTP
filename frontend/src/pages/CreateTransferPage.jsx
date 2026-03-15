@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { createTransfer, getTransferById, updateTransfer } from '../services/transferService';
+import { getMasterData } from '../services/masterDataService';
 import { useAuth } from '../hooks/useAuth';
-import { ArrowRight, MapPin, Send, Building2, Briefcase } from 'lucide-react';
+import { ArrowRight, MapPin, Send, Building2, Briefcase, Loader2 } from 'lucide-react';
 
 // Data imports
-import { railwayData } from '../data/zonesData';
-import { railwayDepartments } from '../data/railwayDepartments';
 import { modeOfSelection } from '../data/modeOfSelection';
 import { categories } from '../data/categories';
 
@@ -64,6 +63,7 @@ const CreateTransferPage = () => {
   const isEditMode = !!id;
   
   const [formData, setFormData] = useState({
+    sector: 'Railway',
     department: '',
     subDepartment: '',
     designation: '',
@@ -94,34 +94,54 @@ const CreateTransferPage = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
-  const [fetching, setFetching] = useState(isEditMode);
+  const [fetching, setFetching] = useState(true);
+  
+  const [masterData, setMasterData] = useState({ regionData: null, departments: null });
 
-  // Derived options for cascading dropdowns
-  const deptList = Object.keys(railwayDepartments);
-  const subDeptList = formData.department && railwayDepartments[formData.department] 
-    ? Object.keys(railwayDepartments[formData.department].subDepartments) 
+  // Load master data on mount
+  useEffect(() => {
+    const initData = async () => {
+      try {
+        const _master = await getMasterData();
+        setMasterData(_master);
+        if (!isEditMode) setFetching(false);
+      } catch (err) {
+        setError('Failed to load portal configuration.');
+        setFetching(false);
+      }
+    };
+    initData();
+  }, [isEditMode]);
+
+  // Derived options for cascading dropdowns (only mapped if masterData is loaded)
+  const departments = masterData.departments || {};
+  const regionData = masterData.regionData || {};
+  
+  const deptList = Object.keys(departments);
+  const subDeptList = formData.department && departments[formData.department] 
+    ? Object.keys(departments[formData.department].subDepartments) 
     : [];
-  const designationList = formData.department && formData.subDepartment && railwayDepartments[formData.department]?.subDepartments[formData.subDepartment]
-    ? railwayDepartments[formData.department].subDepartments[formData.subDepartment]
+  const designationList = formData.department && formData.subDepartment && departments[formData.department]?.subDepartments[formData.subDepartment]
+    ? departments[formData.department].subDepartments[formData.subDepartment]
     : [];
 
-  const zoneList = Object.keys(railwayData);
-  const currentDivList = formData.currentZone && railwayData[formData.currentZone]
-    ? Object.keys(railwayData[formData.currentZone].divisions)
+  const zoneList = Object.keys(regionData);
+  const currentDivList = formData.currentZone && regionData[formData.currentZone]
+    ? Object.keys(regionData[formData.currentZone].divisions)
     : [];
-  const currentStationList = formData.currentZone && formData.currentDivision && railwayData[formData.currentZone]?.divisions[formData.currentDivision]
-    ? railwayData[formData.currentZone].divisions[formData.currentDivision]
+  const currentStationList = formData.currentZone && formData.currentDivision && regionData[formData.currentZone]?.divisions[formData.currentDivision]
+    ? regionData[formData.currentZone].divisions[formData.currentDivision]
     : [];
 
-  const desiredDivList = formData.desiredZone && railwayData[formData.desiredZone]
-    ? Object.keys(railwayData[formData.desiredZone].divisions)
+  const desiredDivList = formData.desiredZone && regionData[formData.desiredZone]
+    ? Object.keys(regionData[formData.desiredZone].divisions)
     : [];
-  const desiredStationList = formData.desiredZone && formData.desiredDivision && railwayData[formData.desiredZone]?.divisions[formData.desiredDivision]
-    ? railwayData[formData.desiredZone].divisions[formData.desiredDivision]
+  const desiredStationList = formData.desiredZone && formData.desiredDivision && regionData[formData.desiredZone]?.divisions[formData.desiredDivision]
+    ? regionData[formData.desiredZone].divisions[formData.desiredDivision]
     : [];
 
   useEffect(() => {
-    if (isEditMode) {
+    if (isEditMode && masterData.regionData) {
       const fetchTransfer = async () => {
         try {
           const data = await getTransferById(id);
@@ -130,7 +150,7 @@ const CreateTransferPage = () => {
           const newFormData = { ...formData };
           const newOtherInputs = { ...otherInputs };
           
-          const deptOptions = Object.keys(railwayDepartments);
+          const deptOptions = Object.keys(departments);
           if (deptOptions.includes(data.department)) {
             newFormData.department = data.department;
           } else {
@@ -140,7 +160,7 @@ const CreateTransferPage = () => {
 
           // Trigger logic for sub-department
           const subDepts = newFormData.department !== 'Other' 
-            ? Object.keys(railwayDepartments[newFormData.department].subDepartments)
+            ? Object.keys(departments[newFormData.department].subDepartments)
             : [];
           if (subDepts.includes(data.subDepartment)) {
             newFormData.subDepartment = data.subDepartment;
@@ -151,7 +171,7 @@ const CreateTransferPage = () => {
 
           // Trigger logic for designation
           const desigs = (newFormData.department !== 'Other' && newFormData.subDepartment !== 'Other')
-            ? railwayDepartments[newFormData.department].subDepartments[newFormData.subDepartment]
+            ? departments[newFormData.department].subDepartments[newFormData.subDepartment]
             : [];
           if (desigs.includes(data.designation)) {
             newFormData.designation = data.designation;
@@ -161,15 +181,15 @@ const CreateTransferPage = () => {
           }
 
           // Handle Locations in similar way
-          const zoneOptions = Object.keys(railwayData);
+          const zoneOptions = Object.keys(regionData);
           
           // Current
           if (zoneOptions.includes(data.currentZone)) {
             newFormData.currentZone = data.currentZone;
-            const divs = Object.keys(railwayData[data.currentZone].divisions);
+            const divs = Object.keys(regionData[data.currentZone].divisions);
             if (divs.includes(data.currentDivision)) {
               newFormData.currentDivision = data.currentDivision;
-              const stations = railwayData[data.currentZone].divisions[data.currentDivision];
+              const stations = regionData[data.currentZone].divisions[data.currentDivision];
               if (stations.includes(data.currentStation)) {
                 newFormData.currentStation = data.currentStation;
               } else {
@@ -194,10 +214,10 @@ const CreateTransferPage = () => {
           // Desired
           if (zoneOptions.includes(data.desiredZone)) {
             newFormData.desiredZone = data.desiredZone;
-            const divs = Object.keys(railwayData[data.desiredZone].divisions);
+            const divs = Object.keys(regionData[data.desiredZone].divisions);
             if (divs.includes(data.desiredDivision)) {
               newFormData.desiredDivision = data.desiredDivision;
-              const stations = railwayData[data.desiredZone].divisions[data.desiredDivision];
+              const stations = regionData[data.desiredZone].divisions[data.desiredDivision];
               if (stations.includes(data.desiredStation)) {
                 newFormData.desiredStation = data.desiredStation;
               } else {
@@ -233,13 +253,16 @@ const CreateTransferPage = () => {
       };
       fetchTransfer();
     }
-  }, [id, isEditMode]);
+  }, [id, isEditMode, masterData.regionData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     
     // Reset child dropdowns when parent changes
+    if (name === 'sector') {
+      setFormData(prev => ({ ...prev, department: '', subDepartment: '', designation: '' }));
+    }
     if (name === 'department') setFormData(prev => ({ ...prev, subDepartment: '', designation: '' }));
     if (name === 'subDepartment') setFormData(prev => ({ ...prev, designation: '' }));
     
@@ -258,6 +281,12 @@ const CreateTransferPage = () => {
     e.preventDefault();
     setError('');
     setSuccess('');
+    
+    if (formData.sector !== 'Railway') {
+      setError(`Sector integration for ${formData.sector} is pending. Coming soon!`);
+      return;
+    }
+    
     setLoading(true);
 
     // Prepare final data by checking for "Other" values
@@ -286,14 +315,17 @@ const CreateTransferPage = () => {
 
   if (fetching) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="w-12 h-12 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin"></div>
+      <div className="flex justify-center items-center min-h-[60vh]">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-10 w-10 text-primary-500 animate-spin" />
+          <p className="text-slate-500 font-medium">Loading parameters...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8 animate-fade-in">
+    <div className="max-w-5xl mx-auto px-4 py-8 animate-fade-in pb-32">
       <div className="mb-8 border-b border-slate-100 pb-6">
         <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
           {isEditMode ? 'Edit Transfer Request' : 'New Transfer Request'}
@@ -318,16 +350,54 @@ const CreateTransferPage = () => {
 
         <form onSubmit={handleSubmit} className="p-6 md:p-10 space-y-12">
           
-          {/* Section 1: Professional Details */}
+          {/* Sector Selection */}
           <div className="space-y-6">
             <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
               <div className="bg-primary-100 p-2 rounded-lg">
-                <Briefcase className="h-5 w-5 text-primary-600" />
+                <Building2 className="h-5 w-5 text-primary-600" />
               </div>
-              <h2 className="text-xl font-bold text-slate-800">Professional Details</h2>
+              <h2 className="text-xl font-bold text-slate-800">Working Sector</h2>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="max-w-md">
+              <SelectInput
+                label="Select Sector"
+                name="sector"
+                value={formData.sector}
+                options={[
+                  {label: 'Indian Railways', value: 'Railway'},
+                  {label: 'Medical Providers', value: 'Medical'},
+                  {label: 'Education / Teachers', value: 'Education'},
+                  {label: 'Defense / Paramilitary', value: 'Defense'},
+                  {label: 'Banking Sector', value: 'Banking'},
+                ]}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+
+          {formData.sector !== 'Railway' ? (
+            <div className="bg-slate-50/50 rounded-[2rem] border border-slate-200 p-16 text-center shadow-inner mt-8">
+              <div className="h-16 w-16 bg-white border border-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
+                <Building2 className="h-8 w-8 text-slate-300" />
+              </div>
+              <h3 className="text-2xl font-black text-slate-900 mb-2">Sector Integration Pending</h3>
+              <p className="text-slate-500 max-w-md mx-auto font-medium">
+                The <span className="font-bold text-slate-700">{formData.sector}</span> sector is currently under active development. You will be able to submit transfer requests for this sector soon.
+              </p>
+            </div>
+          ) : (
+            <>
+              {/* Section 1: Professional Details */}
+              <div className="space-y-6">
+                <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
+                  <div className="bg-primary-100 p-2 rounded-lg">
+                    <Briefcase className="h-5 w-5 text-primary-600" />
+                  </div>
+                  <h2 className="text-xl font-bold text-slate-800">Professional Details</h2>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <SelectInput 
                 label="Department" 
                 name="department" 
@@ -402,7 +472,7 @@ const CreateTransferPage = () => {
               
               <div className="space-y-4">
                 <SelectInput 
-                  label="Railway Zone" 
+                  label="Region/Zone" 
                   name="currentZone" 
                   value={formData.currentZone} 
                   options={zoneList} 
@@ -447,7 +517,7 @@ const CreateTransferPage = () => {
               
               <div className="space-y-4">
                 <SelectInput 
-                  label="Railway Zone" 
+                  label="Region/Zone" 
                   name="desiredZone" 
                   value={formData.desiredZone} 
                   options={zoneList} 
@@ -489,7 +559,7 @@ const CreateTransferPage = () => {
             </button>
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || formData.sector !== 'Railway'}
               className="w-full sm:w-auto flex items-center justify-center gap-2 px-10 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold shadow-xl shadow-primary-500/30 transition-all active:scale-95 disabled:opacity-70 disabled:active:scale-100"
             >
               {loading ? (
@@ -502,6 +572,9 @@ const CreateTransferPage = () => {
               )}
             </button>
           </div>
+            </>
+          )}
+
         </form>
       </div>
     </div>

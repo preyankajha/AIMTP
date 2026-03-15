@@ -1,6 +1,6 @@
 // zonesData.js
 
-export const railwayData = {
+const regionData = {
   "Northern Railway": {
     code: "NR",
     divisions: {
@@ -55,3 +55,5 @@ export const railwayData = {
     }
   }
 };
+
+module.exports = { regionData };

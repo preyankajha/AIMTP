@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const path = require('path');
 const cors = require('cors');
 const morgan = require('morgan');
 
@@ -13,6 +14,7 @@ const transferRoutes = require('./routes/transfers');
 const matchRoutes = require('./routes/matches');
 const notificationRoutes = require('./routes/notificationRoutes');
 const adminRoutes = require('./routes/admin');
+const masterDataRoutes = require('./routes/masterDataRoutes');
 
 // Connect to MongoDB
 connectDB();
@@ -22,7 +24,7 @@ const app = express();
 // CORS
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: process.env.CLIENT_URL || 'http://localhost:5173' || 'http://localhost:5174',
     credentials: true,
   })
 );
@@ -39,12 +41,16 @@ if (process.env.NODE_ENV !== 'production') {
 // General rate limiter
 app.use('/api', generalLimiter);
 
+// Serve uploads folder statically
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // Mount routes
 app.use('/api/auth', authRoutes);
 app.use('/api/transfers', transferRoutes);
 app.use('/api/matches', matchRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/master-data', masterDataRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -61,7 +67,7 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 const server = app.listen(PORT, () => {
-  console.log(`🚂 Railway Transfer API running on port ${PORT} in ${process.env.NODE_ENV} mode`);
+  console.log(`Mutual Transfer API running on port ${PORT} in ${process.env.NODE_ENV} mode`);
 });
 
 // Handle unhandled promise rejections

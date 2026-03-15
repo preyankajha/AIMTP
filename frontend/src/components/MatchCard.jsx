@@ -48,7 +48,7 @@ const MatchCard = ({ match, onContactRevealed }) => {
               {match.partner.name}
             </h3>
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
-              {match.partner.designation || 'Railway Employee'}
+              {match.partner.designation || 'Employee'}
             </p>
           </div>
         </div>

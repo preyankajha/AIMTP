@@ -10,9 +10,9 @@ const api = axios.create({
 // Add a request interceptor to attach JWT token
 api.interceptors.request.use(
   (config) => {
-    const user = JSON.parse(localStorage.getItem('railwayUser'));
-    if (user && user.token) {
-      config.headers.Authorization = `Bearer ${user.token}`;
+    const user = JSON.parse(localStorage.getItem('aimtpUser'));
+    if (user && user.accessToken) {
+      config.headers.Authorization = `Bearer ${user.accessToken}`;
     }
     return config;
   },
@@ -22,17 +22,55 @@ api.interceptors.request.use(
 // Add a response interceptor to handle errors globally
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
-    console.error('API Error:', error.response?.data || error.message);
-    
-    // If unauthorized (401), clear local storage and redirect to login
-    if (error.response?.status === 401) {
-      localStorage.removeItem('railwayUser');
+  async (error) => {
+    const originalRequest = error.config;
+
+    // Prevent infinite loops if refresh fails
+    if (error.response?.status === 401 && originalRequest.url === '/auth/refresh') {
+      localStorage.removeItem('aimtpUser');
       if (window.location.pathname !== '/login') {
         window.location.href = '/login';
       }
+      return Promise.reject(error);
+    }
+
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      const user = JSON.parse(localStorage.getItem('aimtpUser'));
+      
+      if (user && user.refreshToken) {
+        try {
+          // Attempt to refresh
+          const response = await axios.post(`${api.defaults.baseURL}/auth/refresh`, {
+            refreshToken: user.refreshToken
+          });
+          
+          // Update the localized store
+          user.accessToken = response.data.accessToken;
+          localStorage.setItem('aimtpUser', JSON.stringify(user));
+          
+          // Update the original request header
+          originalRequest.headers.Authorization = `Bearer ${user.accessToken}`;
+          
+          // Retry the original request
+          return api(originalRequest);
+        } catch (refreshError) {
+          console.error('Token refresh failed:', refreshError);
+          localStorage.removeItem('aimtpUser');
+          if (window.location.pathname !== '/login') {
+            window.location.href = '/login';
+          }
+          return Promise.reject(refreshError);
+        }
+      } else {
+        localStorage.removeItem('aimtpUser');
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login';
+        }
+      }
     }
     
+    console.error('API Error:', error.response?.data || error.message);
     return Promise.reject(error);
   }
 );

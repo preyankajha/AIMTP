@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { Train, ArrowRight, Eye, EyeOff, User, Mail, Phone, Lock } from 'lucide-react';
+import { Repeat, ArrowRight, ShieldCheck, UserCheck, Mail, Lock, User, Phone, Eye, EyeOff, Briefcase, MapPin, Building, Globe, ChevronRight } from 'lucide-react';
 
 const InputField = ({ name, label, value, onChange, type = 'text', placeholder = '', icon: Icon }) => (
   <div>
@@ -61,21 +61,21 @@ const RegisterPage = () => {
       <div className="hidden lg:flex lg:w-2/5 bg-primary-950 flex-col justify-between p-12 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10 pointer-events-none" style={{backgroundImage: 'radial-gradient(circle at 20% 80%, #10b981 0%, transparent 50%), radial-gradient(circle at 80% 20%, #3b82f6 0%, transparent 50%)'}} />
         
-        <div className="relative z-10 flex items-center gap-3">
-          <div className="bg-emerald-500 p-2 rounded-xl text-primary-950">
-            <Train className="h-6 w-6" />
+        <Link to="/" className="relative z-10 flex items-center gap-3 group/logo">
+          <div className="bg-[#05D38A] p-2.5 rounded-xl text-white shadow-lg shadow-[#05D38A]/20 transition-transform group-hover/logo:scale-105">
+            <Repeat className="h-6 w-6" />
           </div>
-          <span className="text-white font-black text-lg tracking-tight">All India Mutual Transfer Portal</span>
-        </div>
+          <span className="text-white font-black text-xl tracking-tight">All India Mutual Transfer Portal</span>
+        </Link>
 
         <div className="relative z-10">
-          <h2 className="text-3xl font-black text-white leading-tight mb-4">Join thousands of railway employees finding their ideal transfer partner.</h2>
+          <h2 className="text-3xl font-black text-white leading-tight mb-4">Join thousands of employees finding their ideal transfer partner.</h2>
           <p className="text-white/50 font-medium leading-relaxed">Create an account to post your transfer request and instantly get matched with compatible employees across India.</p>
         </div>
 
         <div className="relative z-10">
           <div className="grid grid-cols-3 gap-4">
-            {[{ val: '500+', label: 'Transfers' }, { val: '18', label: 'Railway Zones' }, { val: '24/7', label: 'Matching' }].map(s => (
+            {[{ val: '500+', label: 'Transfers' }, { val: '18+', label: 'Regions' }, { val: '24/7', label: 'Matching' }].map(s => (
               <div key={s.label} className="bg-white/5 rounded-2xl p-4 border border-white/5">
                 <p className="text-2xl font-black text-white">{s.val}</p>
                 <p className="text-white/40 text-xs font-bold uppercase tracking-wider mt-1">{s.label}</p>
@@ -91,12 +91,12 @@ const RegisterPage = () => {
         <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-emerald-100 rounded-full blur-[100px] opacity-30 pointer-events-none -translate-x-1/2 translate-y-1/2" />
 
         <div className="w-full max-w-md relative z-10 animate-fade-in">
-          <div className="mb-8 lg:hidden flex items-center gap-3">
-            <div className="bg-primary-900 p-2 rounded-xl text-white">
-              <Train className="h-5 w-5" />
+          <Link to="/" className="mb-8 lg:hidden flex items-center gap-3 group/logo">
+            <div className="bg-primary-900 p-2 rounded-xl text-white transition-transform group-hover/logo:scale-105">
+              <Repeat className="h-5 w-5" />
             </div>
             <span className="font-black text-primary-900 text-base">All India Mutual Transfer Portal</span>
-          </div>
+          </Link>
 
           <h1 className="text-3xl font-black text-slate-900 tracking-tight mb-1">Create an account</h1>
           <p className="text-slate-500 font-medium mb-8">Join the All India Mutual Transfer Portal to get started.</p>

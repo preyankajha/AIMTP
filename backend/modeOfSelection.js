@@ -3,7 +3,7 @@
 export const modeOfSelection = [
   {
     value: "RRB",
-    label: "RRB (Railway Recruitment Board)"
+    label: "Professional Recruitment Board"
   },
   {
     value: "GDCE",

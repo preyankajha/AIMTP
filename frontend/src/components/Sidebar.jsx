@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -8,7 +9,7 @@ import {
   Settings,
   HelpCircle,
   Plus,
-  Train,
+  Repeat,
   LogOut,
   ShieldCheck
 } from 'lucide-react';
@@ -17,6 +18,18 @@ import { useAuth } from '../hooks/useAuth';
 const Sidebar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+
+  const [profileImg, setProfileImg] = useState(null);
+  useEffect(() => {
+    if (user?.profileImage) {
+      const url = user.profileImage.startsWith('http') 
+        ? user.profileImage 
+        : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${user.profileImage}`;
+      setProfileImg(url);
+    } else {
+      setProfileImg(null);
+    }
+  }, [user]);
 
   const handleLogout = () => {
     logout();
@@ -41,9 +54,9 @@ const Sidebar = () => {
       {/* Brand Header */}
       <div className="p-6 flex items-center gap-2.5">
         <div className="bg-emerald-500 p-2 rounded-xl text-primary-950">
-          <Train className="h-6 w-6" />
+          <Repeat className="h-6 w-6" />
         </div>
-        <span className="text-xl font-black tracking-tight">All India Mututal Transfer Portal</span>
+        <span className="text-xl font-black tracking-tight">All India Mutual Transfer Portal</span>
       </div>
 
       {/* Action Button */}
@@ -120,13 +133,17 @@ const Sidebar = () => {
         </nav>
 
         {/* User Card */}
-        <div className="bg-primary-900/40 rounded-[1.25rem] p-3 border border-white/5 flex items-center gap-3 group relative">
-          <div className="h-10 w-10 rounded-full bg-emerald-500 text-primary-950 flex items-center justify-center font-black text-sm border-2 border-white/10 shrink-0">
-            {user?.name?.split(' ').map(n => n[0]).join('') || 'U'}
+        <div className="bg-primary-900/40 rounded-[1.25rem] p-3 border border-white/5 flex items-center gap-3 group relative cursor-pointer" onClick={() => {navigate('/profile'); if(closeSidebar) closeSidebar();}}>
+          <div className="h-10 w-10 rounded-full bg-emerald-500 text-primary-950 flex items-center justify-center font-black text-sm border-2 border-white/10 shrink-0 overflow-hidden relative">
+            {profileImg ? (
+              <img src={profileImg} alt="Avatar" className="w-full h-full object-cover" />
+            ) : (
+              user?.name?.split(' ').map(n => n[0]).join('') || 'U'
+            )}
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-bold truncate leading-tight">{user?.name}</p>
-            <p className="text-[10px] font-medium text-white/40 truncate mt-0.5">Station Master</p>
+            <p className="text-[10px] font-medium text-white/40 truncate mt-0.5 capitalize">{user?.role || 'Employee'}</p>
           </div>
           <button
             onClick={handleLogout}

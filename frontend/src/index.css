@@ -11,7 +11,7 @@
   --color-primary-600: #2563eb;
   --color-primary-700: #1d4ed8;
   --color-primary-800: #1e40af;
-  --color-primary-900: #1e3a8a; /* Railway Blue */
+  --color-primary-900: #1e3a8a; /* Primary Blue */
   --color-primary-950: #172554;
 
   --color-secondary-50: #ecfdf5;
@@ -71,4 +71,27 @@ body {
 
 @utility animate-fade-in {
   animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@utility animate-fade-in-up {
+  animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  15%       { transform: translateX(-6px); }
+  30%       { transform: translateX(6px); }
+  45%       { transform: translateX(-4px); }
+  60%       { transform: translateX(4px); }
+  75%       { transform: translateX(-2px); }
+  90%       { transform: translateX(2px); }
+}
+
+@utility animate-shake {
+  animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
 }

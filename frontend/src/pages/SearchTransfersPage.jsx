@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { searchTransfers } from '../services/transferService';
 import TransferCard from '../components/TransferCard';
-import { Search, MapPin, Building, Filter, X } from 'lucide-react';
+import { Search, MapPin, Building, Filter, X, Building2 } from 'lucide-react';
 
 const SearchTransfersPage = () => {
-  const [params, setParams] = useState({ zone: '', division: '', station: '' });
+  const [params, setParams] = useState({ sector: 'Railway', zone: '', division: '', station: '' });
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
@@ -30,21 +30,21 @@ const SearchTransfersPage = () => {
   };
 
   const clearFilters = () => {
-    setParams({ zone: '', division: '', station: '' });
+    setParams({ sector: 'Railway', zone: '', division: '', station: '' });
     setHasSearched(false);
     handleSearch(null, true);
   };
 
-  const hasActiveFilters = params.zone || params.division || params.station;
+  const hasActiveFilters = params.sector !== 'Railway' || params.zone || params.division || params.station;
 
-  const inputClass = "w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 placeholder-slate-400 transition-all";
+  const inputClass = "w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 placeholder-slate-400 transition-all appearance-none";
 
   return (
     <div className="animate-fade-in pb-12">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-black text-slate-900 tracking-tight">Search Directory</h1>
-        <p className="text-slate-500 font-medium text-sm mt-1">Browse active transfer requests across Indian Railways</p>
+        <p className="text-slate-500 font-medium text-sm mt-1">Browse active transfer requests across India</p>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8">
@@ -68,9 +68,28 @@ const SearchTransfersPage = () => {
             <form onSubmit={handleSearch} className="space-y-5">
               <div>
                 <label className="flex items-center gap-1.5 text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">
-                  <MapPin className="h-3 w-3" /> Railway Zone
+                  <Building2 className="h-3 w-3" /> Working Sector
                 </label>
-                <input type="text" name="zone" value={params.zone} onChange={handleChange} placeholder="e.g. Northern Railway" className={inputClass} />
+                <div className="relative">
+                  <select name="sector" value={params.sector} onChange={handleChange} className={inputClass} style={{ paddingRight: '2.5rem' }}>
+                    <option value="">All Sectors</option>
+                    <option value="Railway">Indian Railways</option>
+                    <option value="Medical">Medical Providers</option>
+                    <option value="Education">Education / Teachers</option>
+                    <option value="Defense">Defense / Paramilitary</option>
+                    <option value="Banking">Banking Sector</option>
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
+                    <svg className="h-4 w-4 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" /></svg>
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <label className="flex items-center gap-1.5 text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">
+                  <MapPin className="h-3 w-3" /> Region/Zone
+                </label>
+                <input type="text" name="zone" value={params.zone} onChange={handleChange} placeholder="e.g. Northern Region" className={inputClass} />
               </div>
               <div>
                 <label className="flex items-center gap-1.5 text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">

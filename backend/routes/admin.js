@@ -12,6 +12,8 @@ const {
   getAllMatches,
   deleteMatch,
   getRecentActivity,
+  getSettings,
+  updateSettings,
 } = require('../controllers/adminController');
 const { protect, adminOnly } = require('../middleware/authMiddleware');
 
@@ -19,10 +21,12 @@ const { protect, adminOnly } = require('../middleware/authMiddleware');
 router.use(protect);
 router.use(adminOnly);
 
-// Overview Stats & Analytics
+// Overview Stats & Analytics & Settings
 router.get('/stats', getStats);
 router.get('/analytics', getAnalytics);
 router.get('/activity', getRecentActivity);
+router.get('/settings', getSettings);
+router.put('/settings', updateSettings);
 
 // User Management
 router.get('/users', getAllUsers);

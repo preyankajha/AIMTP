@@ -1,6 +1,6 @@
-// railwayDepartments.js
+// departments.js
 
-export const railwayDepartments = {
+const departments = {
   "Mechanical": {
     subDepartments: {
       "Running Staff": [
@@ -154,3 +154,5 @@ export const railwayDepartments = {
     }
   }
 };
+
+module.exports = { departments };

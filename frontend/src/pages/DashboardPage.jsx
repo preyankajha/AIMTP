@@ -94,7 +94,7 @@ const DashboardPage = () => {
     ...transfers.map(t => ({ 
       type: 'update', 
       title: 'Request Created', 
-      detail: `${t.desiredStation} (${t.railwayZone})`, 
+      detail: `${t.desiredStation} (${t.currentZone})`, 
       date: new Date(t.createdAt || new Date()),
       icon: Clock, 
       color: 'blue' 

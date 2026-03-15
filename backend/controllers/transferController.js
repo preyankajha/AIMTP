@@ -170,9 +170,10 @@ const updateTransfer = async (req, res, next) => {
 // @access  Private
 const searchTransfers = async (req, res, next) => {
   try {
-    const { zone, division, station, page = 1, limit = 20 } = req.query;
+    const { sector, zone, division, station, page = 1, limit = 20 } = req.query;
     const query = { status: 'active', userId: { $ne: req.user._id } };
 
+    if (sector) query.sector = sector;
     if (zone) query.currentZone = { $regex: zone, $options: 'i' };
     if (division) query.currentDivision = { $regex: division, $options: 'i' };
     if (station) query.currentStation = { $regex: station.toUpperCase(), $options: 'i' };
@@ -180,7 +181,8 @@ const searchTransfers = async (req, res, next) => {
     const skip = (Number(page) - 1) * Number(limit);
     const total = await TransferRequest.countDocuments(query);
     const transfers = await TransferRequest.find(query)
-      .populate('userId', 'name designation railwayZone division station')
+      .populate('userId', 'name')
+
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(Number(limit));

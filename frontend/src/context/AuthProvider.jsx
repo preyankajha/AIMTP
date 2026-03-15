@@ -1,7 +1,6 @@
-import { createContext, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { AuthContext } from './AuthContext';
 import * as authService from '../services/authService';
-
-export const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -10,16 +9,16 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     // Check if user is logged in
     const loadUser = async () => {
-      const storedData = localStorage.getItem('railwayUser');
+      const storedData = localStorage.getItem('aimtpUser');
       if (storedData) {
         try {
           const parsedData = JSON.parse(storedData);
-          if (parsedData.token) {
+          if (parsedData.accessToken) {
             setUser(parsedData.user);
           }
         } catch (error) {
           console.error('Failed to parse user from local storage:', error);
-          localStorage.removeItem('railwayUser');
+          localStorage.removeItem('aimtpUser');
         }
       }
       setLoading(false);

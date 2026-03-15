@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -5,14 +6,28 @@ import {
   Repeat,
   Network,
   BarChart3,
+  Settings,
+  Database,
   LogOut,
-  Train,
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 
 const AdminSidebar = ({ closeSidebar }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+
+  const [profileImg, setProfileImg] = useState(null);
+
+  useEffect(() => {
+    if (user?.profileImage) {
+      const url = user.profileImage.startsWith('http') 
+        ? user.profileImage 
+        : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${user.profileImage}`;
+      setProfileImg(url);
+    } else {
+      setProfileImg(null);
+    }
+  }, [user]);
 
   const handleLogout = () => {
     logout();
@@ -25,6 +40,8 @@ const AdminSidebar = ({ closeSidebar }) => {
     { name: 'Transfers', path: '/admin/transfers', icon: Repeat },
     { name: 'Matches', path: '/admin/matches', icon: Network },
     { name: 'Analytics', path: '/admin/analytics', icon: BarChart3 },
+    { name: 'Master Data', path: '/admin/master-data', icon: Database },
+    { name: 'Settings', path: '/admin/settings', icon: Settings },
   ];
 
   return (
@@ -32,11 +49,11 @@ const AdminSidebar = ({ closeSidebar }) => {
       {/* Brand Header */}
       <div className="p-6 flex items-center gap-2.5">
         <div className="bg-red-500 p-2 rounded-xl text-white">
-          <Train className="h-6 w-6" />
+          <Repeat className="h-6 w-6" />
         </div>
         <div className="flex flex-col">
           <span className="text-xl font-black tracking-tight text-white leading-tight">Admin<span className="text-red-500">Panel</span></span>
-          <span className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Railway Transfers</span>
+          <span className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Mutual Transfers</span>
         </div>
       </div>
 
@@ -67,8 +84,12 @@ const AdminSidebar = ({ closeSidebar }) => {
       <div className="p-4 mt-auto border-t border-slate-800 bg-slate-950/30">
         {/* User Card */}
         <div className="bg-slate-800/50 rounded-xl p-3 border border-slate-700/50 flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full bg-red-500 text-white flex items-center justify-center font-black text-sm border-2 border-slate-800 shrink-0 shadow-[0_0_15px_rgba(239,68,68,0.3)]">
-            {user?.name?.charAt(0).toUpperCase() || 'A'}
+          <div className="h-10 w-10 rounded-full bg-red-500 text-white flex items-center justify-center font-black text-sm border-2 border-slate-800 shrink-0 shadow-[0_0_15px_rgba(239,68,68,0.3)] overflow-hidden">
+            {profileImg ? (
+              <img src={profileImg} alt="Avatar" className="w-full h-full object-cover" />
+            ) : (
+              user?.name?.charAt(0).toUpperCase() || 'A'
+            )}
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-bold truncate text-white leading-tight">{user?.name || 'Administrator'}</p>

@@ -3,6 +3,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import DashboardPage from './pages/DashboardPage';
 import CreateTransferPage from './pages/CreateTransferPage';
 import MyTransfersPage from './pages/MyTransfersPage';
@@ -16,7 +17,7 @@ import ProfilePage from './pages/ProfilePage';
 import SearchTransfersPage from './pages/SearchTransfersPage';
 import LandingPage from './pages/LandingPage';
 
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider } from './context/AuthProvider';
 
 // Admin Components
 import AdminLayout from './admin/components/AdminLayout';
@@ -26,6 +27,8 @@ import AdminUsersPage from './admin/pages/AdminUsersPage';
 import AdminTransfersPage from './admin/pages/AdminTransfersPage';
 import AdminMatchesPage from './admin/pages/AdminMatchesPage';
 import AdminAnalyticsPage from './admin/pages/AdminAnalyticsPage';
+import AdminSettingsPage from './admin/pages/AdminSettingsPage';
+import AdminMasterDataPage from './admin/pages/AdminMasterDataPage';
 
 function App() {
   return (
@@ -36,6 +39,7 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
           {/* Protected Routes inside DashboardLayout */}
           <Route
@@ -70,6 +74,8 @@ function App() {
             <Route path="/admin/transfers" element={<AdminTransfersPage />} />
             <Route path="/admin/matches" element={<AdminMatchesPage />} />
             <Route path="/admin/analytics" element={<AdminAnalyticsPage />} />
+            <Route path="/admin/master-data" element={<AdminMasterDataPage />} />
+            <Route path="/admin/settings" element={<AdminSettingsPage />} />
           </Route>
 
           {/* Fallback */}

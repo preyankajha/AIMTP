@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Train, ArrowRight, Search, Users, ShieldCheck, Activity, RotateCcw, ChevronDown } from 'lucide-react';
+import { Repeat, ArrowRight, Search, Users, ShieldCheck, Activity, RotateCcw, ChevronDown } from 'lucide-react';
 import { getPublicTransfers } from '../services/transferService';
 import TransferCard from '../components/TransferCard';
 
 // Data imports for filters
-import { railwayData } from '../data/zonesData';
-import { railwayDepartments } from '../data/railwayDepartments';
+import { regionData } from '../data/zonesData';
+import { departments } from '../data/departments';
 
 const LandingPage = () => {
   const [transfers, setTransfers] = useState([]);
@@ -21,13 +21,13 @@ const LandingPage = () => {
     designation: ''
   });
 
-  const zoneList = Object.keys(railwayData);
-  const divisionList = filters.zone && railwayData[filters.zone]
-    ? Object.keys(railwayData[filters.zone].divisions)
+  const zoneList = Object.keys(regionData);
+  const divisionList = filters.zone && regionData[filters.zone]
+    ? Object.keys(regionData[filters.zone].divisions)
     : [];
 
   // Flattening designations for the filter
-  const allDesignations = Object.values(railwayDepartments).flatMap(dept =>
+  const allDesignations = Object.values(departments).flatMap(dept =>
     Object.values(dept.subDepartments).flat()
   );
   const uniqueDesignations = [...new Set(allDesignations)].sort();
@@ -79,7 +79,7 @@ const LandingPage = () => {
             {/* Logo */}
             <div className="flex items-center gap-2.5 group cursor-pointer" onClick={() => navigate('/')}>
               <div className="bg-primary-900 p-2 rounded-xl text-white shadow-lg transition-transform group-hover:scale-110">
-                <Train className="h-6 w-6" />
+                <Repeat className="h-6 w-6" />
               </div>
               <div className="flex flex-col">
                 <span className="text-xl font-black text-slate-900 tracking-tight leading-none">All India Mututal Transfer Portal</span>
@@ -129,7 +129,7 @@ const LandingPage = () => {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-primary-500"></span>
               </span>
-              Modernizing Railway Transfers
+              Modernizing Mutual Transfers
             </div>
 
             <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 tracking-tight leading-[1.1] mb-8 max-w-4xl mx-auto">
@@ -137,7 +137,7 @@ const LandingPage = () => {
             </h1>
 
             <p className="mt-6 text-lg md:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed font-medium mb-10">
-              The official, secure, and intelligent Portal for Indian Railway employees to discover, connect, and process mutual transfer requests seamlessly.
+              The official, secure, and intelligent Portal for verified employees to discover, connect, and process mutual transfer requests seamlessly.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -166,7 +166,7 @@ const LandingPage = () => {
                 Browse Transfer Requests
               </h2>
               <p className="text-lg text-slate-500 font-medium">
-                Explore active transfer requests from railway employees across India
+                Explore active transfer requests from employees across India
               </p>
             </div>
 
@@ -317,7 +317,7 @@ const LandingPage = () => {
                 </div>
                 <h3 className="text-xl font-bold text-slate-900 mb-3">Secure & Verified</h3>
                 <p className="text-slate-600 leading-relaxed font-medium">
-                  Built exclusively for authenticated railway employees ensuring privacy and trustworthy interactions.
+                  Built exclusively for authenticated and verified employees ensuring privacy and trustworthy interactions.
                 </p>
               </div>
             </div>
@@ -367,13 +367,13 @@ const LandingPage = () => {
 
               <div className="relative z-10 flex flex-col items-center text-center max-w-3xl mx-auto">
                 <div className="bg-white/10 p-3 rounded-2xl mb-8 flex items-center justify-center">
-                  <Train className="h-8 w-8 text-white/90" />
+                  <Repeat className="h-8 w-8 text-white/90" />
                 </div>
                 <h2 className="text-4xl md:text-5xl font-black text-white mb-6 tracking-tight leading-tight">
                   Ready to Find Your Transfer Partner?
                 </h2>
                 <p className="text-white/70 text-lg md:text-xl font-medium mb-10 leading-relaxed">
-                  Join thousands of railway employees who have successfully found mutual transfer partners through our platform. It's free, fast, and secure.
+                  Join thousands of employees who have successfully found mutual transfer partners through our platform. It's free, fast, and secure.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
                   <Link
@@ -404,15 +404,15 @@ const LandingPage = () => {
             <div className="lg:col-span-1">
               <div className="flex items-center gap-2.5 mb-6">
                 <div className="bg-primary-900 p-1.5 rounded-lg text-white">
-                  <Train className="h-5 w-5" />
+                  <Repeat className="h-5 w-5" />
                 </div>
                 <span className="text-lg font-black text-slate-900 tracking-tight">All India Mututal Transfer Portal</span>
               </div>
               <p className="text-slate-500 text-sm font-medium leading-relaxed max-w-xs mb-6">
-                India's leading platform for railway employees to find mutual transfer partners across all zones and divisions.
+                India's leading platform for employees to find mutual transfer partners across all regions and divisions.
               </p>
               <div className="text-xs font-bold text-slate-400">
-                Made with care for Railway Employees
+                Made with care for Employees
               </div>
             </div>
 
@@ -447,19 +447,19 @@ const LandingPage = () => {
             </div>
 
             <div>
-              <h4 className="text-slate-900 font-bold text-sm mb-6 uppercase tracking-wider">Popular Zones</h4>
+              <h4 className="text-slate-900 font-bold text-sm mb-6 uppercase tracking-wider">Popular Regions</h4>
               <ul className="space-y-4 text-sm font-semibold text-slate-500">
-                <li><a href="#" className="hover:text-primary-600 transition-colors">Central Railway</a></li>
-                <li><a href="#" className="hover:text-primary-600 transition-colors">Western Railway</a></li>
-                <li><a href="#" className="hover:text-primary-600 transition-colors">Northern Railway</a></li>
-                <li><a href="#" className="hover:text-primary-600 transition-colors">Southern Railway</a></li>
+                <li><a href="#" className="hover:text-primary-600 transition-colors">Central Region</a></li>
+                <li><a href="#" className="hover:text-primary-600 transition-colors">Western Region</a></li>
+                <li><a href="#" className="hover:text-primary-600 transition-colors">Northern Region</a></li>
+                <li><a href="#" className="hover:text-primary-600 transition-colors">Southern Region</a></li>
               </ul>
             </div>
           </div>
 
           <div className="pt-8 border-t border-slate-100 flex flex-col items-center gap-4">
             <div className="text-slate-400 text-[11px] font-bold text-center tracking-wide flex flex-col items-center gap-2">
-              <p>© {new Date().getFullYear()} All India Mututal Transfer Portal. All rights reserved. This platform is not affiliated with Indian Railways.</p>
+              <p>© {new Date().getFullYear()} All India Mututal Transfer Portal. All rights reserved. This platform is domain-neutral.</p>
               <div className="flex items-center gap-2 opacity-60">
                 <span>Developed by</span>
                 <span className="text-primary-700">Priyanka Jha</span>

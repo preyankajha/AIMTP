@@ -32,7 +32,7 @@ const getMyMatches = async (req, res, next) => {
           _id: partner._id,
           name: partner.name,
           designation: partnerRequest.designation,
-          railwayZone: partnerRequest.currentZone,
+          region: partnerRequest.currentZone,
           division: partnerRequest.currentDivision,
           station: partnerRequest.currentStation,
           mobile: hasRevealedContact ? partner.mobile : null,
