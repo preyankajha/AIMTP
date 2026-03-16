@@ -32,8 +32,8 @@ const Sidebar = () => {
   }, [user]);
 
   const handleLogout = () => {
+    navigate('/');
     logout();
-    navigate('/login');
   };
 
   const menuItems = [
@@ -53,8 +53,8 @@ const Sidebar = () => {
     <div className="flex flex-col w-64 bg-primary-950 text-white h-screen sticky top-0 overflow-hidden border-r border-white/5">
       {/* Brand Header */}
       <div className="p-6 flex items-center gap-2.5">
-        <div className="bg-emerald-500 p-2 rounded-xl text-primary-950">
-          <Repeat className="h-6 w-6" />
+        <div className="h-10 w-10 flex items-center justify-center rounded-full bg-white shadow-lg overflow-hidden shrink-0">
+          <img src="/LOGO.png" alt="AITP Logo" className="h-[85%] w-[85%] object-contain" />
         </div>
         <span className="text-xl font-black tracking-tight">All India Mutual Transfer Portal</span>
       </div>

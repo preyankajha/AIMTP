@@ -14,13 +14,14 @@ import {
   TrendingUp,
   Search,
   UserCheck,
-  ArrowRightLeft
+  ArrowRightLeft,
+  Settings
 } from 'lucide-react';
 import MatchCard from '../components/MatchCard';
 import TransferCard from '../components/TransferCard';
 
 const DashboardPage = () => {
-  const { user } = useAuth();
+  const { user, isProfileComplete } = useAuth();
   const navigate = useNavigate();
   const [matches, setMatches] = useState([]);
   const [transfers, setTransfers] = useState([]);
@@ -28,6 +29,11 @@ const DashboardPage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!isProfileComplete) {
+      setLoading(false);
+      return;
+    }
+
     const fetchData = async () => {
       try {
         const [matchData, transferData, publicData] = await Promise.all([
@@ -35,9 +41,22 @@ const DashboardPage = () => {
           getMyTransfers(),
           getPublicTransfers()
         ]);
+        const filtered = publicData.transfers.filter(t => t.userId?._id !== user?._id);
+        
+        // Profile-based suggestions
+        let suggestions = filtered;
+        if (user?.department || user?.currentZone || user?.designation) {
+          const profileMatches = filtered.filter(t => 
+            (user.department && t.department === user.department) ||
+            (user.currentZone && t.currentZone === user.currentZone) ||
+            (user.designation && t.designation === user.designation)
+          );
+          if (profileMatches.length > 0) suggestions = profileMatches;
+        }
+
         setMatches(matchData.matches);
         setTransfers(transferData.transfers);
-        setSuggestedTransfers(publicData.transfers.filter(t => t.userId?._id !== user?._id).slice(0, 3));
+        setSuggestedTransfers(suggestions.slice(0, 3));
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
       } finally {
@@ -46,7 +65,7 @@ const DashboardPage = () => {
     };
 
     fetchData();
-  }, [user?._id]);
+  }, [user?._id, isProfileComplete]);
 
   const handleContactRevealed = (matchId, mobile) => {
     setMatches((prevMatches) => 
@@ -119,13 +138,44 @@ const DashboardPage = () => {
             Real-time overview of your transfer activity
           </p>
         </div>
-        <button 
-          onClick={() => navigate('/transfers/create')}
-          className="bg-primary-900 text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-xl shadow-primary-900/10 hover:bg-slate-900 transition-all active:scale-95"
-        >
-          Post New Request
-        </button>
+        <div className="flex flex-wrap gap-3">
+          <button
+            onClick={() => navigate('/transfers/search')}
+            className="flex items-center gap-2 px-6 py-2.5 bg-white text-slate-700 border border-slate-200 rounded-xl font-bold text-sm shadow-sm hover:bg-slate-50 transition-all active:scale-95"
+          >
+            <Search className="h-4 w-4" />
+            Search Transfers
+          </button>
+          <button 
+            onClick={() => navigate('/transfers/create')}
+            className="flex items-center gap-2 px-6 py-2.5 bg-primary-900 text-white rounded-xl font-bold text-sm shadow-xl shadow-primary-900/10 hover:bg-slate-900 transition-all active:scale-95"
+          >
+            <Plus className="h-4 w-4" />
+            Post New Request
+          </button>
+        </div>
       </div>
+
+      {!isProfileComplete && (
+        <div className="mb-10 p-8 rounded-[2rem] bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200/50 shadow-xl shadow-amber-900/5 flex flex-col md:flex-row items-center gap-8 animate-pulse-subtle">
+          <div className="h-20 w-20 bg-white rounded-3xl flex items-center justify-center shadow-md border border-amber-100 shrink-0">
+            <UserCheck className="h-10 w-10 text-amber-500" />
+          </div>
+          <div className="flex-1 text-center md:text-left">
+            <h3 className="text-2xl font-black text-slate-900 mb-2">Complete Your Working Profile</h3>
+            <p className="text-slate-600 font-medium leading-relaxed max-w-2xl">
+              To unlock transfer requests, view match percentages, and get suggested partners, you must first complete your professional information in settings.
+            </p>
+          </div>
+          <button
+            onClick={() => navigate('/settings')}
+            className="px-8 py-4 bg-primary-900 text-white rounded-2xl font-black text-sm shadow-xl shadow-primary-900/20 hover:bg-slate-900 transition-all active:scale-95 whitespace-nowrap flex items-center gap-2"
+          >
+            <Settings className="h-4 w-4" />
+            Go to Settings
+          </button>
+        </div>
+      )}
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
@@ -208,27 +258,6 @@ const DashboardPage = () => {
             )}
           </div>
 
-          {/* Quick Actions */}
-          <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
-            <h2 className="text-lg font-black text-slate-900 tracking-tight mb-6">Quick Actions</h2>
-            <div className="space-y-3">
-              {quickActions.map((action, i) => (
-                <button
-                  key={i}
-                  onClick={() => navigate(action.path)}
-                  className="w-full flex items-center justify-between p-4 bg-slate-50 hover:bg-slate-100/80 border border-slate-100 rounded-2xl transition-all group"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="bg-white p-2 rounded-xl border border-slate-200 text-slate-600 group-hover:text-primary-600 transition-colors">
-                      <action.icon className="h-4 w-4" />
-                    </div>
-                    <span className="text-xs font-bold text-slate-700">{action.label}</span>
-                  </div>
-                  <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-primary-500 group-hover:translate-x-0.5 transition-all" />
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
       </div>
 

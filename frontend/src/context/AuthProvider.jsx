@@ -44,8 +44,30 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const updateUserProfile = (updatedUser) => {
+    setUser(prev => {
+      const newUser = { ...prev, ...updatedUser };
+      const storedData = localStorage.getItem('aimtpUser');
+      if (storedData) {
+        const session = JSON.parse(storedData);
+        session.user = newUser;
+        localStorage.setItem('aimtpUser', JSON.stringify(session));
+      }
+      return newUser;
+    });
+  };
+
+  const isProfileComplete = user && (
+    user.sector && 
+    user.department && 
+    user.designation && 
+    user.currentZone && 
+    user.currentDivision && 
+    user.currentStation
+  );
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, updateUserProfile, isProfileComplete }}>
       {children}
     </AuthContext.Provider>
   );

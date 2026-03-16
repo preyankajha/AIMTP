@@ -2,13 +2,17 @@ import { MapPin, Building, ArrowRight, Activity, CalendarDays, Trash2, Briefcase
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { useMasterData } from '../context/MasterDataContext';
 
 const TransferCard = ({ transfer, onDelete, isOwnRequest = false, isPublic = false }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { regionData } = useMasterData();
   const isAuthenticated = !!user;
   const isMatched = transfer.status === 'matched';
   const statusColor = isMatched ? 'bg-green-100 text-green-800 border-green-200' : 'bg-emerald-100 text-emerald-800 border-emerald-200';
+
+  const zoneCode = (z) => z && regionData?.[z]?.code ? `(${regionData[z].code})` : '';
   
   const getCategoryColor = (cat) => {
     switch (cat?.toUpperCase()) {
@@ -71,7 +75,7 @@ const TransferCard = ({ transfer, onDelete, isOwnRequest = false, isPublic = fal
                   </div>
                   <div className="min-w-0">
                     <p className="font-extrabold text-slate-900 text-lg leading-none truncate">{transfer.currentStation}</p>
-                    <p className="text-[10px] text-slate-400 font-bold mt-1 tracking-tight truncate">{transfer.currentZone}</p>
+                    <p className="text-[10px] text-slate-400 font-bold mt-1 tracking-tight truncate">{transfer.currentZone} {zoneCode(transfer.currentZone)}</p>
                   </div>
                 </div>
               </div>
@@ -86,11 +90,17 @@ const TransferCard = ({ transfer, onDelete, isOwnRequest = false, isPublic = fal
 
               {/* To */}
               <div className="flex-1 min-w-0 text-right">
-                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1">To</span>
+                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1 px-1">
+                  To {transfer.desiredLocations?.length > 1 && <span className="text-primary-600 bg-primary-50 px-1 rounded">+{transfer.desiredLocations.length - 1} More</span>}
+                </span>
                 <div className="flex items-start justify-end gap-2.5">
                   <div className="min-w-0">
-                    <p className="font-extrabold text-slate-900 text-lg leading-none truncate">{transfer.desiredStation}</p>
-                    <p className="text-[10px] text-slate-400 font-bold mt-1 tracking-tight truncate">{transfer.desiredZone}</p>
+                    <p className="font-extrabold text-slate-900 text-lg leading-none truncate">
+                      {transfer.desiredLocations?.[0]?.station || transfer.desiredStation}
+                    </p>
+                    <p className="text-[10px] text-slate-400 font-bold mt-1 tracking-tight truncate">
+                      {transfer.desiredLocations?.[0]?.zone || transfer.desiredZone} {zoneCode(transfer.desiredLocations?.[0]?.zone || transfer.desiredZone)}
+                    </p>
                   </div>
                   <div className="bg-emerald-50 p-1.5 rounded-lg shrink-0">
                     <MapPin className="h-4 w-4 text-emerald-500" />
@@ -235,7 +245,7 @@ const TransferCard = ({ transfer, onDelete, isOwnRequest = false, isPublic = fal
                   <span className="flex items-center gap-1">
                     <Building className="h-3 w-3" /> {transfer.currentDivision + ' Div'}
                   </span>
-                  <span>{transfer.currentZone + ' Zone'}</span>
+                  <span>{transfer.currentZone + ' Zone'} {zoneCode(transfer.currentZone)}</span>
                 </div>
               </div>
             </div>
@@ -251,22 +261,46 @@ const TransferCard = ({ transfer, onDelete, isOwnRequest = false, isPublic = fal
             <div className="w-0.5 h-full bg-slate-200"></div>
           </div>
 
-          {/* Desired Location */}
+          {/* Desired Location(s) */}
           <div className="flex-1 w-full p-4 rounded-lg bg-blue-50/50 border border-blue-100/50">
-            <h4 className="text-xs font-bold text-blue-400 uppercase tracking-wider mb-2">Desired Posting</h4>
-            <div className="flex items-start gap-3">
-              <MapPin className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
-              <div>
-                <p className="font-semibold text-slate-900 text-lg">
-                  {transfer.desiredStation}
-                </p>
-                <div className="flex flex-col text-xs text-slate-500 mt-1 gap-0.5">
-                  <span className="flex items-center gap-1">
-                    <Building className="h-3 w-3" /> {transfer.desiredDivision + ' Div'}
-                  </span>
-                  <span>{transfer.desiredZone + ' Zone'}</span>
+            <h4 className="text-xs font-bold text-blue-400 uppercase tracking-wider mb-2">Desired Postings</h4>
+            <div className="space-y-4">
+              {transfer.desiredLocations && transfer.desiredLocations.length > 0 ? (
+                transfer.desiredLocations.map((loc, idx) => (
+                  <div key={idx} className="flex items-start gap-3">
+                    <div className="shrink-0 flex flex-col items-center">
+                      <MapPin className="h-4 w-4 text-green-500 mt-0.5" />
+                      <span className="text-[8px] font-black text-blue-500 bg-blue-100 px-1 rounded mt-1">P{loc.priority || idx + 1}</span>
+                    </div>
+                    <div>
+                      <p className="font-semibold text-slate-900 text-base leading-tight">
+                        {loc.station}
+                      </p>
+                      <div className="flex flex-col text-[10px] text-slate-500 mt-0.5 gap-0.5">
+                        <span className="flex items-center gap-1">
+                          <Building className="h-2.5 w-2.5" /> {loc.division + ' Div'}
+                        </span>
+                        <span>{loc.zone + ' Zone'} {zoneCode(loc.zone)}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="flex items-start gap-3">
+                  <MapPin className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
+                  <div>
+                    <p className="font-semibold text-slate-900 text-lg">
+                      {transfer.desiredStation}
+                    </p>
+                    <div className="flex flex-col text-xs text-slate-500 mt-1 gap-0.5">
+                      <span className="flex items-center gap-1">
+                        <Building className="h-3 w-3" /> {transfer.desiredDivision + ' Div'}
+                      </span>
+                      <span>{transfer.desiredZone + ' Zone'} {zoneCode(transfer.desiredZone)}</span>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
 
@@ -286,6 +320,11 @@ const TransferCard = ({ transfer, onDelete, isOwnRequest = false, isPublic = fal
                 <Info className="h-3.5 w-3.5 text-slate-400" />
                 <span>Selected via: </span>
                 <span className="font-bold text-slate-700">{transfer.modeOfSelection}</span>
+              </div>
+            )}
+            {transfer.payLevel && (
+              <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                <span className="font-extrabold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-lg border border-slate-200">{transfer.payLevel}</span>
               </div>
             )}
             {transfer.basicPay && (

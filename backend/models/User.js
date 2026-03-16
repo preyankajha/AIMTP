@@ -39,6 +39,18 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    // Working Profile
+    sector: { type: String, default: '' },
+    department: { type: String, default: '' },
+    subDepartment: { type: String, default: '' },
+    designation: { type: String, default: '' },
+    currentZone: { type: String, default: '' },
+    currentDivision: { type: String, default: '' },
+    currentStation: { type: String, default: '' },
+    payLevel: { type: String, default: '' },
+    gradePay: { type: String, default: '' },
+    basicPay: { type: String, default: '' },
+    category: { type: String, default: '' },
   },
   { timestamps: true }
 );

@@ -48,25 +48,26 @@ const transferRequestSchema = new mongoose.Schema(
       trim: true,
       uppercase: true,
     },
-    desiredZone: {
-      type: String,
-      required: [true, 'Desired Zone is required'],
-      trim: true,
-    },
-    desiredDivision: {
-      type: String,
-      required: [true, 'Desired Division is required'],
-      trim: true,
-    },
-    desiredStation: {
-      type: String,
-      required: [true, 'Desired Station is required'],
-      trim: true,
-      uppercase: true,
-    },
+    desiredLocations: [
+      {
+        zone: { type: String, required: true },
+        division: { type: String, required: true },
+        station: { type: String, required: true },
+        priority: { type: Number, default: 1 }
+      }
+    ],
     basicPay: {
       type: Number,
       required: [true, 'Basic Pay is required'],
+      min: [18000, 'Basic Pay cannot be below 18000'],
+    },
+    payLevel: {
+      type: String,
+      default: '',
+    },
+    gradePay: {
+      type: String,
+      default: '',
     },
     category: {
       type: String,

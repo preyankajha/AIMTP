@@ -4,6 +4,7 @@ const {
   getStats,
   getAnalytics,
   getAllUsers,
+  getVisitorLogs,
   getUserById,
   suspendUser,
   deleteUser,
@@ -24,6 +25,7 @@ router.use(adminOnly);
 // Overview Stats & Analytics & Settings
 router.get('/stats', getStats);
 router.get('/analytics', getAnalytics);
+router.get('/visitor-logs', getVisitorLogs);
 router.get('/activity', getRecentActivity);
 router.get('/settings', getSettings);
 router.put('/settings', updateSettings);

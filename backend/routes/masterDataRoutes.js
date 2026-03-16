@@ -4,6 +4,10 @@ const {
   getPublicData,
   getZones, addZone, updateZone, removeZone,
   getDepartments, addDepartment, updateDepartment, removeDepartment,
+  getSectors, addSector, updateSector, removeSector,
+  getCategories, addCategory, updateCategory, removeCategory,
+  getPayLevels, addPayLevel, updatePayLevel, removePayLevel,
+  getSelectionModes, addSelectionMode, updateSelectionMode, removeSelectionMode,
   seedMasterData
 } = require('../controllers/masterDataController');
 const { protect, adminOnly } = require('../middleware/authMiddleware');
@@ -27,5 +31,25 @@ router.get('/departments', getDepartments);
 router.post('/departments', addDepartment);
 router.put('/departments/:id', updateDepartment);
 router.delete('/departments/:id', removeDepartment);
+
+router.get('/sectors', getSectors);
+router.post('/sectors', addSector);
+router.put('/sectors/:id', updateSector);
+router.delete('/sectors/:id', removeSector);
+
+router.get('/categories', getCategories);
+router.post('/categories', addCategory);
+router.put('/categories/:id', updateCategory);
+router.delete('/categories/:id', removeCategory);
+
+router.get('/pay-levels', getPayLevels);
+router.post('/pay-levels', addPayLevel);
+router.put('/pay-levels/:id', updatePayLevel);
+router.delete('/pay-levels/:id', removePayLevel);
+
+router.get('/selection-modes', getSelectionModes);
+router.post('/selection-modes', addSelectionMode);
+router.put('/selection-modes/:id', updateSelectionMode);
+router.delete('/selection-modes/:id', removeSelectionMode);
 
 module.exports = router;

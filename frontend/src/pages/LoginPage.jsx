@@ -41,8 +41,8 @@ const LoginPage = () => {
         
         {/* Header Branding */}
         <Link to="/" className="relative z-10 flex items-center gap-3 group/logo">
-          <div className="bg-[#05D38A] p-2.5 rounded-xl text-white shadow-lg shadow-[#05D38A]/20 transition-transform group-hover/logo:scale-105">
-            <Repeat className="h-6 w-6" />
+          <div className="h-10 w-10 flex items-center justify-center rounded-full overflow-hidden shrink-0 shadow-lg shadow-white/10 transition-transform group-hover/logo:scale-105 bg-white">
+            <img src="/LOGO.png" alt="AITP Logo" className="h-[85%] w-[85%] object-contain" />
           </div>
           <span className="text-white font-black text-xl tracking-tight">All India Mutual Transfer Portal</span>
         </Link>
@@ -95,8 +95,8 @@ const LoginPage = () => {
         <div className="w-full max-w-[420px] animate-fade-in">
           {/* Mobile Header */}
           <Link to="/" className="mb-12 lg:hidden flex items-center gap-3 group/logo">
-            <div className="bg-[#002B5B] p-2 rounded-xl text-white transition-transform group-hover/logo:scale-105">
-              <Repeat className="h-5 w-5" />
+            <div className="h-9 w-9 bg-white rounded-full shadow-sm transition-transform group-hover/logo:scale-105 flex items-center justify-center overflow-hidden shrink-0">
+              <img src="/LOGO.png" alt="AITP Logo" className="h-[85%] w-[85%] object-contain" />
             </div>
             <span className="font-black text-[#002B5B] text-lg tracking-tight">All India Mutual Transfer Portal</span>
           </Link>

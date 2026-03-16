@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { User, Mail, Phone, Clock, ShieldCheck, ShieldAlert, Building, Edit3, Loader2, PartyPopper, Camera } from 'lucide-react';
+import { useMasterData } from '../context/MasterDataContext';
+import { User, Mail, Phone, Clock, ShieldCheck, ShieldAlert, Building, Edit3, Loader2, PartyPopper, Camera, Briefcase, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { sendVerificationOtp, verifyEmailOtp, uploadProfileImage, updateProfileImageUrl } from '../services/authService';
 
@@ -18,7 +19,12 @@ const InfoRow = ({ icon: Icon, label, value }) => (
 
 const ProfilePage = () => {
   const { user } = useAuth();
+  const { regionData } = useMasterData();
   const initials = user?.name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'U';
+
+  const zoneCode = user?.currentZone && regionData?.[user.currentZone]?.code 
+    ? `(${regionData[user.currentZone].code})` 
+    : '';
 
   const memberSince = user?.createdAt
     ? new Date(user.createdAt).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })
@@ -324,7 +330,25 @@ const ProfilePage = () => {
         </div>
       </div>
 
-      <div className="mt-6 bg-primary-50 border border-primary-100 rounded-[1.5rem] p-6">
+      {/* Professional Details */}
+      <div className="bg-white rounded-[1.75rem] border border-slate-200 shadow-sm p-7 mb-6 mt-6">
+        <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 flex items-center gap-2">
+          <Briefcase className="h-3.5 w-3.5" /> Professional Details
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <InfoRow icon={Briefcase} label="Working Sector" value={user?.sector} />
+          <InfoRow icon={Building} label="Department" value={user?.department} />
+          <InfoRow icon={User} label="Designation" value={user?.designation} />
+          <InfoRow icon={MapPin} label="Current Region/Zone" value={user?.currentZone ? `${user.currentZone} ${zoneCode}` : null} />
+          <InfoRow icon={MapPin} label="Current Division" value={user?.currentDivision} />
+          <InfoRow icon={MapPin} label="Current Station" value={user?.currentStation} />
+          <InfoRow icon={Briefcase} label="Grade Pay / Level" value={user?.gradePay} />
+          <InfoRow icon={Briefcase} label="Basic Pay" value={user?.basicPay ? `₹${user.basicPay}` : null} />
+          <InfoRow icon={User} label="Category" value={user?.category} />
+        </div>
+      </div>
+
+      <div className="mt-6 bg-slate-50 border border-slate-200 rounded-[1.5rem] p-6">
         <p className="text-sm text-primary-800 font-medium leading-relaxed">
           <span className="font-black">Note:</span> Job details like Designation, Zone, and Station are provided when creating a Transfer Request. This keeps your profile flexible and accurate per request.
         </p>

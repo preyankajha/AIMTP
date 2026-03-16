@@ -30,8 +30,8 @@ const AdminSidebar = ({ closeSidebar }) => {
   }, [user]);
 
   const handleLogout = () => {
+    navigate('/');
     logout();
-    navigate('/login');
   };
 
   const menuItems = [
@@ -48,8 +48,8 @@ const AdminSidebar = ({ closeSidebar }) => {
     <div className="flex flex-col w-64 bg-slate-900 text-slate-300 h-screen sticky top-0 overflow-hidden border-r border-slate-800">
       {/* Brand Header */}
       <div className="p-6 flex items-center gap-2.5">
-        <div className="bg-red-500 p-2 rounded-xl text-white">
-          <Repeat className="h-6 w-6" />
+        <div className="h-10 w-10 flex items-center justify-center rounded-full bg-white shadow-lg overflow-hidden shrink-0">
+          <img src="/LOGO.png" alt="AITP Logo" className="h-[85%] w-[85%] object-contain grayscale opacity-90 mix-blend-multiply filter contrast-125 hover:grayscale-0 transition-all" />
         </div>
         <div className="flex flex-col">
           <span className="text-xl font-black tracking-tight text-white leading-tight">Admin<span className="text-red-500">Panel</span></span>

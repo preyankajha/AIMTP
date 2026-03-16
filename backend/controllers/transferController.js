@@ -17,14 +17,15 @@ const createTransfer = async (req, res, next) => {
       subDepartment,
       designation, 
       modeOfSelection,
+      payLevel,
       basicPay,
+      gradePay,
       category,
+      sector,
       currentZone, 
       currentDivision, 
       currentStation, 
-      desiredZone, 
-      desiredDivision, 
-      desiredStation 
+      desiredLocations // Array of {zone, division, station, priority}
     } = req.body;
 
     // Limit check
@@ -40,19 +41,18 @@ const createTransfer = async (req, res, next) => {
       });
     }
 
-    // Check if user already has an active transfer request for exact same details
+    // Check if user already has an active transfer request for exact same current location
     const existingRequest = await TransferRequest.findOne({
       userId: req.user._id,
       department,
       subDepartment,
       designation,
       currentStation: currentStation.toUpperCase(),
-      desiredStation: desiredStation.toUpperCase(),
       status: 'active',
     });
 
     if (existingRequest) {
-      return res.status(400).json({ message: 'You already have an identical active transfer request' });
+      return res.status(400).json({ message: 'You already have an active transfer request for this position. You can edit it to add more desired locations.' });
     }
 
     const transferRequest = await TransferRequest.create({
@@ -61,18 +61,38 @@ const createTransfer = async (req, res, next) => {
       subDepartment,
       designation,
       modeOfSelection,
+      payLevel,
       basicPay,
+      gradePay,
       category,
+      sector,
       currentZone,
       currentDivision,
       currentStation: currentStation.toUpperCase(),
-      desiredZone,
-      desiredDivision,
-      desiredStation: desiredStation.toUpperCase(),
+      desiredLocations: desiredLocations.map(loc => ({
+        ...loc,
+        station: loc.station.toUpperCase()
+      }))
     });
 
     // Run the matching engine asynchronously
     const matches = await findAndCreateMatches(transferRequest);
+
+    // Link to User Profile: Update user's professional details automatically
+    const User = require('../models/User');
+    await User.findByIdAndUpdate(req.user._id, {
+      sector,
+      department,
+      subDepartment,
+      designation,
+      currentZone,
+      currentDivision,
+      currentStation: currentStation.toUpperCase(),
+      payLevel,
+      gradePay,
+      basicPay,
+      category
+    });
 
     res.status(201).json({
       message: 'Transfer request created successfully',
@@ -144,7 +164,12 @@ const updateTransfer = async (req, res, next) => {
     // Update fields
     const updateData = { ...req.body };
     if (updateData.currentStation) updateData.currentStation = updateData.currentStation.toUpperCase();
-    if (updateData.desiredStation) updateData.desiredStation = updateData.desiredStation.toUpperCase();
+    if (updateData.desiredLocations) {
+      updateData.desiredLocations = updateData.desiredLocations.map(loc => ({
+        ...loc,
+        station: loc.station.toUpperCase()
+      }));
+    }
 
     transfer = await TransferRequest.findByIdAndUpdate(
       req.params.id,
@@ -154,6 +179,19 @@ const updateTransfer = async (req, res, next) => {
 
     // Re-run matching engine after update
     const matches = await findAndCreateMatches(transfer);
+
+    // Link to User Profile: Sync updates to profile
+    if (updateData.sector || updateData.department || updateData.designation || updateData.currentStation) {
+      const User = require('../models/User');
+      const profileUpdates = {};
+      const fields = ['sector', 'department', 'subDepartment', 'designation', 'currentZone', 'currentDivision', 'currentStation', 'payLevel', 'gradePay', 'basicPay', 'category'];
+      fields.forEach(f => {
+        if (updateData[f] !== undefined) profileUpdates[f] = updateData[f];
+      });
+      if (Object.keys(profileUpdates).length > 0) {
+        await User.findByIdAndUpdate(req.user._id, profileUpdates);
+      }
+    }
 
     res.json({
       message: 'Transfer request updated successfully',
@@ -170,13 +208,24 @@ const updateTransfer = async (req, res, next) => {
 // @access  Private
 const searchTransfers = async (req, res, next) => {
   try {
-    const { sector, zone, division, station, page = 1, limit = 20 } = req.query;
+    const { 
+      sector, 
+      zone, division, station, 
+      desiredZone, desiredDivision, desiredStation,
+      page = 1, limit = 20 
+    } = req.query;
+
     const query = { status: 'active', userId: { $ne: req.user._id } };
 
     if (sector) query.sector = sector;
+    
     if (zone) query.currentZone = { $regex: zone, $options: 'i' };
     if (division) query.currentDivision = { $regex: division, $options: 'i' };
     if (station) query.currentStation = { $regex: station.toUpperCase(), $options: 'i' };
+
+    if (desiredZone) query['desiredLocations.zone'] = { $regex: desiredZone, $options: 'i' };
+    if (desiredDivision) query['desiredLocations.division'] = { $regex: desiredDivision, $options: 'i' };
+    if (desiredStation) query['desiredLocations.station'] = { $regex: desiredStation.toUpperCase(), $options: 'i' };
 
     const skip = (Number(page) - 1) * Number(limit);
     const total = await TransferRequest.countDocuments(query);

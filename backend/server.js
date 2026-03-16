@@ -7,6 +7,7 @@ const morgan = require('morgan');
 const connectDB = require('./config/db');
 const errorHandler = require('./middleware/errorHandler');
 const { generalLimiter } = require('./middleware/rateLimiter');
+const analyticsMiddleware = require('./middleware/analyticsMiddleware');
 
 // Routes
 const authRoutes = require('./routes/auth');
@@ -15,6 +16,7 @@ const matchRoutes = require('./routes/matches');
 const notificationRoutes = require('./routes/notificationRoutes');
 const adminRoutes = require('./routes/admin');
 const masterDataRoutes = require('./routes/masterDataRoutes');
+const analyticsRoutes = require('./routes/analytics');
 
 // Connect to MongoDB
 connectDB();
@@ -41,6 +43,9 @@ if (process.env.NODE_ENV !== 'production') {
 // General rate limiter
 app.use('/api', generalLimiter);
 
+// Analytics & Hits capture
+app.use(analyticsMiddleware);
+
 // Serve uploads folder statically
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
@@ -51,6 +56,7 @@ app.use('/api/matches', matchRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/master-data', masterDataRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

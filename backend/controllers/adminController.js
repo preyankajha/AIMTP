@@ -2,6 +2,7 @@ const User = require('../models/User');
 const TransferRequest = require('../models/TransferRequest');
 const Match = require('../models/Match');
 const Notification = require('../models/Notification');
+const VisitorLog = require('../models/VisitorLog');
 const fs = require('fs');
 const path = require('path');
 
@@ -25,6 +26,8 @@ const getStats = async (req, res, next) => {
       totalMatches,
       newUsersToday,
       newTransfersToday,
+      totalHits,
+      hitsToday,
     ] = await Promise.all([
       User.countDocuments(),
       User.countDocuments({ updatedAt: { $gte: todayStart } }),
@@ -33,6 +36,8 @@ const getStats = async (req, res, next) => {
       Match.countDocuments(),
       User.countDocuments({ createdAt: { $gte: todayStart } }),
       TransferRequest.countDocuments({ createdAt: { $gte: todayStart } }),
+      VisitorLog.countDocuments(),
+      VisitorLog.countDocuments({ timestamp: { $gte: todayStart } }),
     ]);
 
     res.json({
@@ -43,6 +48,8 @@ const getStats = async (req, res, next) => {
       totalMatches,
       newUsersToday,
       newTransfersToday,
+      totalHits,
+      hitsToday,
     });
   } catch (error) {
     next(error);
@@ -166,6 +173,26 @@ const getAllUsers = async (req, res, next) => {
     const total = await User.countDocuments(query);
 
     res.json({ users, total, page: parseInt(page), pages: Math.ceil(total / parseInt(limit)) });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc   Get visitor logs (hits/device/location)
+// @route  GET /api/admin/visitor-logs
+// @access Private/Admin
+const getVisitorLogs = async (req, res, next) => {
+  try {
+    const { page = 1, limit = 50 } = req.query;
+    const logs = await VisitorLog.find()
+      .populate('user', 'name email')
+      .sort({ timestamp: -1 })
+      .skip((parseInt(page) - 1) * parseInt(limit))
+      .limit(parseInt(limit));
+    
+    const total = await VisitorLog.countDocuments();
+    
+    res.json({ logs, total, page: parseInt(page), pages: Math.ceil(total / parseInt(limit)) });
   } catch (error) {
     next(error);
   }
@@ -424,6 +451,7 @@ module.exports = {
   getStats,
   getAnalytics,
   getAllUsers,
+  getVisitorLogs,
   getUserById,
   suspendUser,
   deleteUser,

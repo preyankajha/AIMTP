@@ -20,6 +20,20 @@ export const logout = () => {
   localStorage.removeItem('aimtpUser');
 };
 
+export const updateProfile = async (profileData) => {
+  const response = await api.put('/auth/profile', profileData);
+  // Update local storage user object
+  const sessionString = localStorage.getItem('aimtpUser');
+  if (sessionString) {
+    const session = JSON.parse(sessionString);
+    if (session.user) {
+      session.user = { ...session.user, ...response.data.user };
+      localStorage.setItem('aimtpUser', JSON.stringify(session));
+    }
+  }
+  return response.data;
+};
+
 export const getProfile = async () => {
   const response = await api.get('/auth/profile');
   return response.data;

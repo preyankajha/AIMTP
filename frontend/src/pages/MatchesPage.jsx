@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { getMyMatches } from '../services/matchService';
 import MatchCard from '../components/MatchCard';
-import { Users, Search } from 'lucide-react';
+import { Users, Search, AlertCircle, Settings } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 
 const MatchesPage = () => {
+  const { isProfileComplete } = useAuth();
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -32,6 +34,27 @@ const MatchesPage = () => {
     return (
       <div className="flex justify-center items-center min-h-[400px]">
         <div className="animate-spin rounded-full h-10 w-10 border-2 border-primary-100 border-t-primary-600"></div>
+      </div>
+    );
+  }
+
+  if (!isProfileComplete) {
+    return (
+      <div className="max-w-2xl mx-auto py-20 px-6 text-center animate-fade-in">
+        <div className="h-20 w-20 bg-amber-50 rounded-[2rem] flex items-center justify-center mx-auto mb-8 border border-amber-100">
+          <AlertCircle className="h-10 w-10 text-amber-500" />
+        </div>
+        <h1 className="text-3xl font-black text-slate-900 mb-4 tracking-tight">Complete Your Profile First</h1>
+        <p className="text-slate-500 font-medium leading-relaxed mb-10 text-lg">
+          To ensure accurate matchmaking, we need your current working details. Please update your profile in settings to unlock your mutual matches.
+        </p>
+        <Link
+          to="/settings"
+          className="inline-flex items-center gap-2 bg-primary-900 text-white px-10 py-4 rounded-2xl font-black text-sm shadow-xl shadow-primary-900/10 hover:bg-slate-900 transition-all active:scale-95"
+        >
+          <Settings className="h-5 w-5" />
+          Update Profile Now
+        </Link>
       </div>
     );
   }

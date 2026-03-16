@@ -52,7 +52,7 @@ const AdminDashboardPage = () => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         <StatCard 
           title="Total Users" 
           value={stats.totalUsers} 
@@ -73,6 +73,14 @@ const AdminDashboardPage = () => {
           icon={Repeat} 
           colorClass="bg-indigo-100 text-indigo-600"
           trend={stats.newTransfersToday}
+          trendLabel="today"
+        />
+        <StatCard 
+          title="Total Hits" 
+          value={stats.totalHits || 0} 
+          icon={Activity} 
+          colorClass="bg-red-100 text-red-600"
+          trend={stats.hitsToday || 0}
           trendLabel="today"
         />
         <StatCard 

@@ -16,8 +16,11 @@ import DashboardLayout from './components/DashboardLayout';
 import ProfilePage from './pages/ProfilePage';
 import SearchTransfersPage from './pages/SearchTransfersPage';
 import LandingPage from './pages/LandingPage';
+import TermsPage from './pages/TermsPage';
 
 import { AuthProvider } from './context/AuthProvider';
+import { MasterDataProvider } from './context/MasterDataContext';
+import AnalyticsTracker from './components/AnalyticsTracker';
 
 // Admin Components
 import AdminLayout from './admin/components/AdminLayout';
@@ -33,13 +36,16 @@ import AdminMasterDataPage from './admin/pages/AdminMasterDataPage';
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <Routes>
+      <MasterDataProvider>
+        <Router>
+          <AnalyticsTracker />
+          <Routes>
           {/* Public Routes */}
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/terms" element={<TermsPage />} />
 
           {/* Protected Routes inside DashboardLayout */}
           <Route
@@ -82,6 +88,7 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
+      </MasterDataProvider>
     </AuthProvider>
   );
 }

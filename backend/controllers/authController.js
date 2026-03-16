@@ -68,7 +68,19 @@ const register = async (req, res, next) => {
         email: user.email,
         mobile: user.mobile,
         role: user.role,
+        verified: user.verified,
         profileImage: user.profileImage,
+        sector: user.sector,
+        department: user.department,
+        subDepartment: user.subDepartment,
+        designation: user.designation,
+        currentZone: user.currentZone,
+        currentDivision: user.currentDivision,
+        currentStation: user.currentStation,
+        payLevel: user.payLevel,
+        gradePay: user.gradePay,
+        basicPay: user.basicPay,
+        category: user.category,
       },
     });
   } catch (error) {
@@ -114,6 +126,17 @@ const login = async (req, res, next) => {
         role: user.role,
         verified: user.verified,
         profileImage: user.profileImage,
+        sector: user.sector,
+        department: user.department,
+        subDepartment: user.subDepartment,
+        designation: user.designation,
+        currentZone: user.currentZone,
+        currentDivision: user.currentDivision,
+        currentStation: user.currentStation,
+        payLevel: user.payLevel,
+        gradePay: user.gradePay,
+        basicPay: user.basicPay,
+        category: user.category,
       },
     });
   } catch (error) {
@@ -261,7 +284,29 @@ const verifyEmailOtp = async (req, res, next) => {
     await user.save();
     
     otpStore.delete(userId);
-    res.json({ message: 'Email verified successfully', user });
+    res.json({ 
+      message: 'Email verified successfully', 
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        mobile: user.mobile,
+        role: user.role,
+        verified: user.verified,
+        profileImage: user.profileImage,
+        sector: user.sector,
+        department: user.department,
+        subDepartment: user.subDepartment,
+        designation: user.designation,
+        currentZone: user.currentZone,
+        currentDivision: user.currentDivision,
+        currentStation: user.currentStation,
+        payLevel: user.payLevel,
+        gradePay: user.gradePay,
+        basicPay: user.basicPay,
+        category: user.category,
+      }
+    });
   } catch (error) {
     next(error);
   }
@@ -414,4 +459,40 @@ const updateProfileImage = async (req, res, next) => {
   }
 };
 
-module.exports = { register, login, getProfile, refresh, changePassword, sendVerificationOtp, verifyEmailOtp, forgotPassword, resetPassword, uploadProfileImage, updateProfileImage };
+// @desc    Update current user profile
+// @route   PUT /api/auth/profile
+// @access  Private
+const updateProfile = async (req, res, next) => {
+  try {
+    const { name, mobile, sector, department, subDepartment, designation, currentZone, currentDivision, currentStation, payLevel, gradePay, basicPay, category } = req.body;
+
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (name) user.name = name;
+    if (mobile) user.mobile = mobile;
+    
+    // Update profile fields
+    user.sector = sector ?? user.sector;
+    user.department = department ?? user.department;
+    user.subDepartment = subDepartment ?? user.subDepartment;
+    user.designation = designation ?? user.designation;
+    user.currentZone = currentZone ?? user.currentZone;
+    user.currentDivision = currentDivision ?? user.currentDivision;
+    user.currentStation = currentStation ?? user.currentStation;
+    user.payLevel = payLevel ?? user.payLevel;
+    user.gradePay = gradePay ?? user.gradePay;
+    user.basicPay = basicPay ?? user.basicPay;
+    user.category = category ?? user.category;
+
+    await user.save();
+
+    res.json({ message: 'Profile updated successfully', user });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { register, login, getProfile, updateProfile, refresh, changePassword, sendVerificationOtp, verifyEmailOtp, forgotPassword, resetPassword, uploadProfileImage, updateProfileImage };

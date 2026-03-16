@@ -14,15 +14,23 @@ const findAndCreateMatches = async (newRequest) => {
 
   try {
     // Find all active reverse-matching requests (exclude user's own requests)
+    // A match exists if:
+    // 1. Partner's Current Station is IN Requester's Desired List
+    // 2. Requester's Current Station is IN Partner's Desired List
+    const desiredStations = newRequest.desiredLocations.map(loc => loc.station.toUpperCase());
+
     const reverseMatches = await TransferRequest.find({
       designation: newRequest.designation, // Must be same designation for mutual transfer
-      currentStation: newRequest.desiredStation,
-      desiredStation: newRequest.currentStation,
+      currentStation: { $in: desiredStations },
+      'desiredLocations.station': newRequest.currentStation.toUpperCase(),
       status: 'active',
       userId: { $ne: newRequest.userId }, // Can't match with yourself
     }).populate('userId', 'name mobile');
 
     for (const reverseRequest of reverseMatches) {
+      // Find which station matched for the notification message
+      const matchedStation = desiredStations.find(s => s === reverseRequest.currentStation.toUpperCase());
+
       // Check if a match already exists between these two requests (either order)
       const existingMatch = await Match.findOne({
         $or: [
@@ -53,7 +61,7 @@ const findAndCreateMatches = async (newRequest) => {
       await Notification.create({
         userId: newRequest.userId,
         title: 'Perfect Match Found! 🎊',
-        message: `We found a mutual transfer match with ${reverseRequest.userId.name} for your request to ${newRequest.desiredStation}.`,
+        message: `We found a mutual transfer match with ${reverseRequest.userId.name} for your request to ${matchedStation}.`,
         type: 'match',
         link: '/matches/my'
       });
@@ -62,7 +70,7 @@ const findAndCreateMatches = async (newRequest) => {
       await Notification.create({
         userId: reverseRequest.userId,
         title: 'New Transfer Match! ✨',
-        message: `A potential partner (${newRequest.userId.name}) has been found for your transfer request to ${reverseRequest.desiredStation}.`,
+        message: `A potential partner (${newRequest.userId.name}) has been found for your transfer request to ${newRequest.currentStation}.`,
         type: 'match',
         link: '/matches/my'
       });

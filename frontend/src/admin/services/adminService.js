@@ -16,6 +16,11 @@ export const getRecentActivity = async () => {
   return response.data;
 };
 
+export const getVisitorLogs = async (params) => {
+  const response = await api.get('/admin/visitor-logs', { params });
+  return response.data;
+};
+
 // User Management
 export const getUsers = async (params) => {
   const response = await api.get('/admin/users', { params });
